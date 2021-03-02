@@ -1,0 +1,12 @@
+PacketLobbyInfoData_V1(header=PacketHeader(packetFormat=2020, gameMajorVersion=1, gameMinorVersion=16, packetVersion=1, packetId=9, sessionUID=0, sessionTime=0.0,
+ frameIdentifier=0, playerCarIndex=0, secondaryPlayerCarIndex=0), numPlayers=20, lobbyPlayers=[
+     LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=68, name=b'Player', readyStatus=0),
+      LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=41, name=b'Player', readyStatus=1),
+       LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=80, name=b'Player', readyStatus=1), 
+       LobbyInfoData_V1(aiControlled=0, teamId=255, nationality=0, name=b'Player', readyStatus=0),
+        LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=43, name=b'Player', readyStatus=1),
+         LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=29, name=b'Player', readyStatus=1),
+          LobbyInfoData_V1(aiControlled=0, teamId=255, nationality=41, name=b'Player', readyStatus=1), 
+          LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=3, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=255, nationality=15, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=82, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=10, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=255, nationality=60, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=255, nationality=20, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=2, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=29, name=b'Player', readyStatus=0), LobbyInfoData_V1(aiControlled=0, teamId=255, nationality=64, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=75, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=50, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=22, name=b'Player', readyStatus=1), LobbyInfoData_V1(aiControlled=0, teamId=41, nationality=28, name=b'Player', readyStatus=1),
+ LobbyInfoData_V1(aiControlled=0, teamId=255, nationality=0, name=b'', readyStatus=0), 
+ LobbyInfoData_V1(aiControlled=0, teamId=255, nationality=0, name=b'', readyStatus=0)])
