@@ -27,6 +27,8 @@ WorkshopID = "2403338074" #f2 2404403390
 #WorkshopFile = "D:/SteamLibrary/steamapps/workshop/content/1080110/"+ WorkshopID +"/ugcitemcontent.bin"
 WorkshopUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id="+ WorkshopID
 SetupDir = str(F1SetupPath) + "/Setups/" #"c:\Users\88\hello\F1Setups/Setups/
+setupStructFormat = '<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16sfb 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B'
+
 
 bg = "#33393b"
 fg = "white"
@@ -389,32 +391,33 @@ def weatherBoxSelected(*args):
     SelectTrack(trackremember)
 
 def setScale(setup):
-    front_wing_Scale.set(setup[47])
-    rear_wing_Scale.set(setup[50])
-    on_throttle_Scale.set(setup[53])
-    off_throttle_Scale.set(setup[56])
-    front_camber_Scale.set(setup[59]) #-2,50
-    rear_camber_Scale.set(setup[62])  #-1.00
-    front_toe_Scale.set(setup[65]) #0.15
-    rear_toe_Scale.set(setup[68])
-    front_suspension_Scale.set(setup[71])
-    rear_suspension_Scale.set(setup[74])
-    front_suspension_height_Scale.set(setup[77])
-    rear_suspension_height_Scale.set(setup[80])
-    front_antiroll_bar_Scale.set(setup[83])
-    rear_antiroll_bar_Scale.set(setup[86])
-    brake_pressure_Scale.set(setup[89])
-    brake_bias_Scale.set(setup[92])
-    front_right_tyre_pressure_Scale.set(setup[95])
-    front_left_tyre_pressure_Scale.set(setup[98])
-    rear_right_tyre_pressure_Scale.set(setup[101])
-    rear_left_tyre_pressure_Scale.set(setup[104])
-    ballast_Scale.set(setup[107])
-    fuel_load_Scale.set(setup[110])
-    ramp_differential_Scale.set(setup[113])
+    front_wing_Scale.set(setup[41])
+    rear_wing_Scale.set(setup[44])
+    on_throttle_Scale.set(setup[47])
+    off_throttle_Scale.set(setup[50])
+    front_camber_Scale.set(setup[53]) #-2,50
+    rear_camber_Scale.set(setup[56])  #-1.00
+    front_toe_Scale.set(setup[59]) #0.15
+    rear_toe_Scale.set(setup[62])
+    front_suspension_Scale.set(setup[65])
+    rear_suspension_Scale.set(setup[68])
+    front_suspension_height_Scale.set(setup[71])
+    rear_suspension_height_Scale.set(setup[74])
+    front_antiroll_bar_Scale.set(setup[77])
+    rear_antiroll_bar_Scale.set(setup[80])
+    brake_pressure_Scale.set(setup[83])
+    brake_bias_Scale.set(setup[86])
+    front_right_tyre_pressure_Scale.set(setup[89])
+    front_left_tyre_pressure_Scale.set(setup[92])
+    rear_right_tyre_pressure_Scale.set(setup[95])
+    rear_left_tyre_pressure_Scale.set(setup[98])
+    ballast_Scale.set(setup[101])
+    fuel_load_Scale.set(setup[104])
+    ramp_differential_Scale.set(setup[107])
 
 def write():
-    setup = struct.pack('<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16sfb 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B', 
+    
+    setup = struct.pack(setupStructFormat, 
     b'F1CS', 0,1,0,32,0 ,7,                  #\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x07
     b'versionsi32', 0, 9,                     #\x00\x00\x00\x00\t
     b'save_names128', 20,                    #\x14      probably string length of next name
@@ -449,12 +452,7 @@ def write():
     b'fuel_loadfp32', fuel_load_Scale.get(), 17,
     b'ramp_differentialfp32', ramp_differential_Scale.get(), 17,
     b'published_file_idui64', 31,174,162,128,0,0,0,0        # b'published_file_idui64\x1f\xae\xa2\x80\x00\x00\x00\x00'
-    )
-    """
-    print(setup[14])   #b'All setups | scruffe'
-    print(setup[21])   #b'track_idui08'
-    print(setup[31])   #weatherTypetypebool
-    """
+    ) 
     
     with open(root.filename, 'wb') as file:
         file.write(setup)
@@ -488,7 +486,7 @@ def Open(): #open a setup fle
     root.filename =  filedialog.askopenfilename(initialdir = F1SetupPath,title = "Select file",filetypes = (("bin files","*.bin"),("all files","*.*")))
     #error if the file isnt a f1 2020 setup file
     setupFile = open(root.filename, "rb")
-    setup = struct.unpack('<4s5l1b 11s5b 13sb 20sb 11s3b 12s2b 16s5b 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B', setupFile.read())
+    setup = struct.unpack(setupStructFormat, setupFile.read())
     name = setup[15]
     statusmsg.set(str(name) + " Loaded (" + root.filename + ")")
     setScale(setup)
@@ -500,10 +498,9 @@ def SelectTrack(country): #buttons will use this to load the track into the prog
     carType = carsBox.get()
     setupType = weatherBox.get()
     root.filename = SetupDir + raceType +'/'+ carType +'/'+ setupType +'/'+ country  +".bin"
-
-    #print(root.filename)
+    
     setupFile = open(root.filename, "rb")
-    setup = struct.unpack('<4s5l1b 11s5b 13sb 20sb 11s3b 12s2b 16s5b 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B', setupFile.read())
+    setup = struct.unpack(setupStructFormat, setupFile.read())
     circuit = tracks[country]
     setScale(setup)
     if loadSystem.get() == True: #if checked the setup will automaticly write to the default file
@@ -537,7 +534,7 @@ def showTrackselection(*args):
 lbox.bind('<<ListboxSelect>>', showTrackselection)
 raceBox.bind("<<ComboboxSelected>>", raceBoxSelected)
 carsBox.bind("<<ComboboxSelected>>", carsBoxSelected)
-carsBox.bind("<<ComboboxSelected>>", weatherBoxSelected)
+weatherBox.bind("<<ComboboxSelected>>", weatherBoxSelected)
 
 # Set the starting state of the interface, including selecting the
 # default weather to send, and clearing the messages.  Select the first
