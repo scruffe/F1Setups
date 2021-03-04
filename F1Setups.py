@@ -63,6 +63,8 @@ tracks = {
     "USA Short": "Circuit of The Americas (Short)",
     "Vietnam": "Hanoi Circuit"}
 
+
+
 countrynames = list(tracks)
 
 cnames = StringVar(value=countrynames)
@@ -151,19 +153,21 @@ except:
     hkey = None
     messagebox.showerror("error","Can't find steam registry key")
 
+
 try:
     steam_path = winreg.QueryValueEx(hkey, "InstallPath")
+    steam_path = steam_path[0]
 except:
-    steam_path = None
     messagebox.showerror("error","Can't find steam Install directory")
-
+    steam_path = filedialog.askdirectory()
+    
 winreg.CloseKey(hkey)
 
 
 try:    #get WorkshopFile install dir
-    libraryfolder = steam_path[0] + r"\steamapps\libraryfolders.vdf"
+    libraryfolder = steam_path + r"\steamapps\libraryfolders.vdf"
     with open(libraryfolder) as f: #"C:\Program Files (x86)\Steam\SteamApps\libraryfolders.vdf"
-        libraries = [steam_path[0]] #C:\Program Files (x86)\Steam
+        libraries = [steam_path] #C:\Program Files (x86)\Steam
         lf = f.read()
         libraries.extend([fn.replace("\\\\", "\\") for fn in
             re.findall(r'^\s*"\d*"\s*"([^"]*)"', lf, re.MULTILINE)])
@@ -174,12 +178,13 @@ try:    #get WorkshopFile install dir
                     ff.read()
                     try:
                         WorkshopFile = library+"/steamapps/workshop/content/"+steamappid+"/"+ WorkshopID +"/ugcitemcontent.bin"
-                        open(WorkshopFile, "rb")
                         break
                     except:
                         messagebox.showerror("error", "Not Subscribed to steam workshop, Subscribe to: "+WorkshopUrl)
+                ff.close()
             except:
                 appmanifest = None
+    f.close()
 except:
     libraryfolder = None
     messagebox.showerror("error","Can't find steam libraries")
