@@ -136,7 +136,6 @@ cars = ('All Cars','')
 
 # State variables
 weather = StringVar()
-sentmsg = StringVar()
 statusmsg = StringVar()
 loadSystem = BooleanVar()
 
@@ -195,24 +194,72 @@ def chooseweatherType(*args):
 
 #create widgets
 
-lbox = Listbox(c, listvariable=cnames, height=len(countrynames),bg=bg,fg=fg,highlightcolor="black",selectbackground="darkred",selectforeground="white")
+lbox = Listbox(c, 
+    listvariable=cnames, 
+    height=len(countrynames),
+    bg=bg,
+    fg=fg,
+    highlightcolor="black",
+    selectbackground="darkred",
+    selectforeground="white")
 lbox.selection_clear(1, last=None)
-raceBox = Combobox(c,justify="center", values=race, state='disabled') #state= 'readonly' , 'disabled'
-carsBox = Combobox(c,justify="center", values=cars, state='readonly') 
-weatherBox = Combobox(c,justify="center", values=weather_, state='readonly') 
-status = ttk.Label(c, textvariable=statusmsg, anchor=W)
-check = ttk.Checkbutton(c, text='Auto Use', variable=loadSystem, onvalue=True, offvalue=False)
-separatorV = ttk.Separator(c,orient='vertical')
+raceBox = Combobox(c,
+    justify="center", 
+    values=race, 
+    state='disabled') #state= 'readonly' , 'disabled'
+carsBox = Combobox(c,
+    justify="center", 
+    values=cars, 
+    state='readonly') 
+weatherBox = Combobox(c,
+    justify="center", 
+    values=weather_, 
+    state='readonly') 
+status = ttk.Label(c, 
+    textvariable=statusmsg, 
+    anchor=W)
+check = ttk.Checkbutton(c, 
+    text='Auto Use', 
+    variable=loadSystem, 
+    onvalue=True, 
+    offvalue=False)
+separatorV = ttk.Separator(c,
+    orient='vertical')
 
 # Grid all the widgets
 
-lbox.grid(column=0, row=0, rowspan=6, sticky=(N,S,E,W))
-raceBox.grid(column=0, row=6, sticky=W)
-carsBox.grid(column=0, row=7, sticky=W)
-weatherBox.grid(column=0, row=8, sticky=W)
-check.grid(column=0, row=11,sticky=W,padx=10)
-status.grid(column=0, row=60, columnspan=6, sticky=(W,E))
-separatorV.grid(column=1, row=0, rowspan=12, sticky=(N,S,E,W))
+lbox.grid(
+    column=0,
+    row=0, 
+    rowspan=6, 
+    sticky=(N,S,E,W))
+raceBox.grid(
+    column=0, 
+    row=6, 
+    sticky=W)
+carsBox.grid(
+    column=0, 
+    row=7, 
+    sticky=W)
+weatherBox.grid(
+    column=0, 
+    row=8, 
+    sticky=W)
+check.grid(
+    column=0, 
+    row=11,
+    sticky=W,
+    padx=10)
+status.grid(
+    column=0, 
+    row=60, 
+    columnspan=6, 
+    sticky=(W,E))
+separatorV.grid(
+    column=1, 
+    row=0, 
+    rowspan=12, 
+    sticky=(N,S,E,W))
 c.grid_columnconfigure(0, weight=1)
 c.grid_rowconfigure(5, weight=1)
 
@@ -222,31 +269,50 @@ for i in range(0,len(countrynames),2):
     lbox.itemconfigure(i, background='#576366',fg=fg)
 
 
-#create slider widgets
-front_wing_Scale = Scale(c, from_=1, to=11,orient=HORIZONTAL, label="Front wing", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg)
-rear_wing_Scale = Scale(c, from_=1, to=11,orient=HORIZONTAL, label="Rear wing", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-on_throttle_Scale = Scale(c, from_=50, to=100,orient=HORIZONTAL, label="On throttle", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-off_throttle_Scale = Scale(c, from_=50, to=100,orient=HORIZONTAL, label="Off throttle", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-front_camber_Scale = Scale(c, from_=-3.5, to=-2.5,orient=HORIZONTAL, label="Front camber", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg,resolution=0.1) 
-rear_camber_Scale = Scale(c, from_=-2, to=-1,orient=HORIZONTAL, label="Rear camber", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg,resolution=0.1) 
-front_toe_Scale = Scale(c, from_=0.05, to=0.15,orient=HORIZONTAL, label="Front toe", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg,resolution=0.01) 
-rear_toe_Scale = Scale(c, from_=0.20, to=0.50,orient=HORIZONTAL, label="Rear toe", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg,resolution=0.03) #there is an offset
-front_suspension_Scale = Scale(c, from_=1, to=11,orient=HORIZONTAL, label="Front suspension", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-rear_suspension_Scale = Scale(c, from_=1, to=11,orient=HORIZONTAL, label="Rear suspension", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-front_antiroll_bar_Scale = Scale(c, from_=1, to=11,orient=HORIZONTAL, label="Front antiroll bar", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-rear_antiroll_bar_Scale = Scale(c, from_=1, to=11,orient=HORIZONTAL, label="Rear antiroll bar", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
+def MakeScale(from_ , to,  label, resolution=1):
+    scale = Scale(
+        c, 
+        from_=from_, 
+        to=to, 
+        orient=HORIZONTAL, 
+        label=label, 
+        length=scale_length,
+        relief=scale_relief, 
+        bg=bg,
+        fg=fg,
+        troughcolor=bg,
+        bd=3,
+        activebackground=bg,
+        highlightbackground=bg,
+        resolution=resolution)
+    return scale
 
-front_suspension_height_Scale = Scale(c, from_=1, to=11,orient=HORIZONTAL, label="Front suspension height", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-rear_suspension_height_Scale = Scale(c, from_=1, to=11,orient=HORIZONTAL, label="Rear suspension height", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-brake_pressure_Scale = Scale(c, from_=50, to=100,orient=HORIZONTAL, label="Brake pressure", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-brake_bias_Scale = Scale(c, from_=70, to=50,orient=HORIZONTAL, label="Brake bias", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-front_right_tyre_pressure_Scale = Scale(c, from_=21, to=25,orient=HORIZONTAL, label="Front right tyre pressure", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg,resolution=0.4) 
-front_left_tyre_pressure_Scale = Scale(c, from_=21, to=25,orient=HORIZONTAL, label="Front left tyre pressure", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg,resolution=0.4) 
-rear_right_tyre_pressure_Scale = Scale(c, from_=19.5, to=23.5,orient=HORIZONTAL, label="Rear right tyre pressure", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg, resolution=0.4) 
-rear_left_tyre_pressure_Scale = Scale(c, from_=19.5, to=23.5,orient=HORIZONTAL, label="Rear left tyre pressure", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg,resolution=0.4) 
-ballast_Scale = Scale(c, from_=1, to=11 ,orient=HORIZONTAL, label="Ballast", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-fuel_load_Scale = Scale(c, from_=5, to=110,orient=HORIZONTAL, label="Fuel load", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
-ramp_differential_Scale = Scale(c,orient=HORIZONTAL, label="Ramp differential", length=scale_length,relief=scale_relief, bg=bg,fg=fg,troughcolor=bg,bd=3,activebackground=bg,highlightbackground=bg) 
+#create slider widgets (from_ , to,  label, resolution)
+front_wing_Scale = MakeScale(1, 11,"Front wing")
+rear_wing_Scale = MakeScale(1, 11, "Rear wing")
+on_throttle_Scale = MakeScale(50, 100, "On throttle")
+off_throttle_Scale = MakeScale(50, 100, "Off throttle")
+front_camber_Scale = MakeScale(-3.5, -2.5, "Front camber", 0.1) 
+rear_camber_Scale = MakeScale(-2, -1, "Rear camber", 0.1) 
+front_toe_Scale = MakeScale(0.05, 0.15, "Front toe", 0.01) 
+rear_toe_Scale = MakeScale(0.20, 0.50, "Rear toe", 0.03) #there is an offset
+front_suspension_Scale = MakeScale(1, 11, "Front suspension")
+rear_suspension_Scale = MakeScale(1, 11, "Rear suspension")
+front_antiroll_bar_Scale = MakeScale(1, 11, "Front antiroll bar")
+rear_antiroll_bar_Scale = MakeScale(1, 11, "Rear antiroll bar")
+
+front_suspension_height_Scale = MakeScale(1, 11, "Front suspension height")
+rear_suspension_height_Scale = MakeScale(1, 11, "Rear suspension height")
+brake_pressure_Scale = MakeScale(50, 100, "Brake pressure")
+brake_bias_Scale = MakeScale(70, 50, "Brake bias")
+front_right_tyre_pressure_Scale = MakeScale(21, 25, "Front right tyre pressure", 0.4) 
+front_left_tyre_pressure_Scale = MakeScale(21, 25, "Front left tyre pressure", 0.4) 
+rear_right_tyre_pressure_Scale = MakeScale(19.5, 23.5, "Rear right tyre pressure", .4) 
+rear_left_tyre_pressure_Scale = MakeScale(19.5, 23.5, "Rear left tyre pressure", 0.4) 
+ballast_Scale = MakeScale(1, 11 , "Ballast")
+fuel_load_Scale = MakeScale(5, 110, "Fuel load")
+ramp_differential_Scale = MakeScale(70,100, "Ramp differential")
+
 
 ri = 0 #set row integer
 def Scalegrid(scale):
@@ -376,19 +442,19 @@ def gameModeScaleSettings(*args): #only grid the sliders that we can use for thi
         Scalegrid(rear_left_tyre_pressure_Scale)
     
 def raceBoxSelected(*args):
-    global trackremember
+    global lboxCountry
     forgetScales()
     gameModeScaleSettings() #show/hide sliders
     
     carsBox['values'] = raceSettings[raceBox.get()] 
     carsBox.current(0) #update carbox
-    SelectTrack(trackremember)
+    SelectTrack(lboxCountry)
 def carsBoxSelected(*args):
-    global trackremember
-    SelectTrack(trackremember)
+    global lboxCountry
+    SelectTrack(lboxCountry)
 def weatherBoxSelected(*args):
-    global trackremember
-    SelectTrack(trackremember)
+    global lboxCountry
+    SelectTrack(lboxCountry)
 
 def setScale(setup):
     front_wing_Scale.set(setup[41])
@@ -414,7 +480,6 @@ def setScale(setup):
     ballast_Scale.set(setup[101])
     fuel_load_Scale.set(setup[104])
     ramp_differential_Scale.set(setup[107])
-
 def write():
     
     setup = struct.pack(setupStructFormat, 
@@ -520,14 +585,14 @@ ttk.Button(c, text="Open", command=Open).grid(column=5, row=50, sticky=NSEW)
 # with the new population.  As well, clear the message about the
 # weather being sent, so it doesn't stick around after we start doing
 # other things.
-trackremember = ""
+lboxCountry = ""
 def showTrackselection(*args):
-    global trackremember
+    global lboxCountry
     idxs = lbox.curselection()
     if len(idxs)==1:
         idx = int(idxs[0])
         country = countrynames[idx]
-        trackremember = country
+        lboxCountry = country
         SelectTrack(country)
         
 # Set event bindings for when the selection changes
@@ -541,7 +606,6 @@ weatherBox.bind("<<ComboboxSelected>>", weatherBoxSelected)
 # country in the list; because the <<ListboxSelect>> events are only
 # fired when users makes a change, we explicitly call showTrackselection.
 weather.set('Dry')
-sentmsg.set('')
 statusmsg.set('')
 lbox.selection_set(0)
 
