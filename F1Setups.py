@@ -10,6 +10,7 @@ import winreg
 import re
 import pathlib
 
+import json
 
 F1SetupPath = pathlib.Path(__file__).parent.absolute()
 
@@ -30,40 +31,14 @@ SetupDir = str(F1SetupPath) + "/Setups/" #"c:\Users\88\hello\F1Setups/Setups/
 setupStructFormat = '<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16sfb 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B'
 
 
+with open('tracks.json', encoding='utf-8') as json_file: 
+    tracks = json.load(json_file) 
+
+
 bg = "#33393b"
 fg = "white"
 scale_length = "200" #length of all the sliders
 scale_relief = "flat"
-
-tracks = {
-    "Abu Dhabi": "Yas Marina Circuit",
-    "Australia": "Melbourne Grand Prix Circuit",
-    "Austria": "Spielberg" ,
-    "Azerbaijan": "Baku City Circuit",
-    "Bahrain": "Bahrain International Circuit",
-    "Bahrain Short": "Bahrain International Circuit (Short)",
-    "Belgium": "Circuit De Spa-Francorchamps",
-    "Brazil": "Autódromo José Carlos Pace",
-    "Britain": "Silverstone Circuit",
-    "Britain Short": "Silverstone Circuit (Short)",
-    "Canada": "Circuit Gilles-Villeneuve",
-    "China": "Shanghai International Circuit",
-    "France": "Circuit Paul Ricard",
-    "Hungary": "Hungaroring",
-    "Italy": "Autodromo Nazionale Monza",
-    "Japan": "Suzuka International Racing Course",
-    "Japan Short": "Suzuka International Racing Course (Short)",
-    "Monaco": "Circuit de Monaco",
-    "México": "Autódromo Hermanos Rodríguez",
-    "Russia": "Sochi Autodrom",
-    "Singapore": "Marina Bay Street Circuit",
-    "Spain": "Circuit de Barcelona-Catalunya",
-    "The Netherlands": "Circuit Zandvoort",
-    "USA": "Circuit of The Americas",
-    "USA Short": "Circuit of The Americas (Short)",
-    "Vietnam": "Hanoi Circuit"}
-
-
 
 countrynames = list(tracks)
 
@@ -139,7 +114,8 @@ cars = ('All Cars','')
 # State variables
 weather = StringVar()
 statusmsg = StringVar()
-loadSystem = BooleanVar()
+autoUse = BooleanVar()
+
 
 # Create and grid the outer content frame
 c = ttk.Frame(root, padding=(5, 5, 12, 0))
@@ -197,8 +173,19 @@ def chooseweatherType(*args):
         country = countrynames[idx]
         SelectTrack(country)
 
-#create widgets
 
+def setAutoUseButton(*args):
+    with open('config.json') as json_file: 
+        config = json.load(json_file)     
+    json_file.close()
+
+    config['autoUseButton'] = autoUse.get()
+    
+    with open("config.json", "w") as json_file:
+        json.dump(config, json_file, indent=4)
+    json_file.close()
+
+#create widgets
 lbox = Listbox(c, 
     listvariable=cnames, 
     height=len(countrynames),
@@ -225,9 +212,10 @@ status = ttk.Label(c,
     anchor=W)
 check = ttk.Checkbutton(c, 
     text='Auto Use', 
-    variable=loadSystem, 
+    variable=autoUse, 
     onvalue=True, 
-    offvalue=False)
+    offvalue=False,
+    command=setAutoUseButton)
 separatorV = ttk.Separator(c,
     orient='vertical')
 
@@ -328,7 +316,7 @@ def Scalegrid(scale):
     if ri >= maxrows:
         row -= maxrows 
         column = 4
-    scale.grid(row=row, column=column, columnspan=2,sticky='NSEW')#needs own line
+    scale.grid(row=row, column=column, columnspan=2, sticky='NSEW')#needs own line
     ri += 1
 def forgetScales(): #remove the sliders 
     front_wing_Scale.grid_forget()
@@ -573,7 +561,8 @@ def SelectTrack(country): #buttons will use this to load the track into the prog
     setup = struct.unpack(setupStructFormat, setupFile.read())
     circuit = tracks[country]
     setScale(setup)
-    if loadSystem.get() == True: #if checked the setup will automaticly write to the default file
+    
+    if autoUse.get() == True:
         Use()
     statusmsg.set(" %s | %s | (%s) %s [%s]" % (raceType, carType, country, circuit, setupWeatherType))
 
@@ -613,6 +602,17 @@ weatherBox.bind("<<ComboboxSelected>>", weatherBoxSelected)
 weather.set('Dry')
 statusmsg.set('')
 lbox.selection_set(0)
+
+#set the check button if autoUse is enabled
+with open('config.json') as json_file: 
+    config = json.load(json_file)     
+json_file.close()
+
+if config['autoUseButton'] == True:
+    check.invoke()
+
+
+
 
 #Assigning ComboBox Values
 raceBox.current(0)
