@@ -1,4 +1,7 @@
 {
-    "this": "",
+    "steamDir": "",
+    "workshopfileDir": "",
+    "autoUseChanges": true,
+    "autoSaveChanges": true,
     "autoUseButton": true
 }

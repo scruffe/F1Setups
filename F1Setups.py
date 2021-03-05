@@ -35,6 +35,10 @@ fg = "white"
 scale_length = "200" #length of all the sliders
 scale_relief = "flat"
 
+with open('config.json') as json_file: 
+    config = json.load(json_file)     
+json_file.close()
+
 with open('tracks.json', encoding='utf-8') as json_file: 
     tracks = json.load(json_file) 
 
@@ -112,6 +116,8 @@ cars = ('All Cars','')
 # State variables
 weather = StringVar()
 statusmsg = StringVar()
+autoUseChanges = BooleanVar()
+autoSaveChanges = BooleanVar()
 autoUse = BooleanVar()
 
 #set row integer used for deciding what role a slider(scale) goes
@@ -394,7 +400,7 @@ def writeSetup(filename):
 #write to WorkshopFile
 def Use(): 
     writeSetup(WorkshopFile)
-    statusmsg.set("Loaded  "+ root.filename)
+    statusmsg.set("Using current setup")
 
 #write to both current file and workshop
 def UseSave():
@@ -448,12 +454,12 @@ def chooseweatherType(*args):
         SelectTrack(country)
 
 #update config.json auto-use
-def setAutoUseButton(*args):
+def updateConfig(name, var):
     with open('config.json') as json_file: 
         config = json.load(json_file)     
     json_file.close()
 
-    config['autoUseButton'] = autoUse.get()
+    config[name] = var.get()
     
     with open("config.json", "w") as json_file:
         json.dump(config, json_file, indent=4)
@@ -484,12 +490,25 @@ weatherBox = Combobox(c,
 status = ttk.Label(c, 
     textvariable=statusmsg, 
     anchor=W)
+autoUseChangesBox = ttk.Checkbutton(c, 
+    text='Auto Use Changes', 
+    variable=autoUseChanges, 
+    onvalue=True, 
+    offvalue=False,
+    command= lambda: updateConfig('autoUseChanges',autoUseChanges))
+autoSaveChangesBox = ttk.Checkbutton(c, 
+    text='Auto Save Changes', 
+    variable=autoSaveChanges, 
+    onvalue=True, 
+    offvalue=False,
+    command= lambda: updateConfig('autoSaveChanges',autoSaveChanges))
 autoUseTrackBox = ttk.Checkbutton(c, 
     text='Auto Use track', 
     variable=autoUse, 
     onvalue=True, 
     offvalue=False,
-    command=setAutoUseButton)
+    command= lambda: updateConfig('autoUseButton',autoUse))
+
 separatorV = ttk.Separator(c,
     orient='vertical')
 
@@ -532,9 +551,12 @@ carsBox.grid(
     column=0, row=7, sticky=W)
 weatherBox.grid(
     column=0, row=8, sticky=W)
+autoUseChangesBox.grid(
+    column=0, row=9, sticky=W, padx=10)
+autoSaveChangesBox.grid(
+    column=0, row=10, sticky=W, padx=10)
 autoUseTrackBox.grid(
     column=0, row=11, sticky=W, padx=10)
-
 separatorV.grid(
     column=1, row=0, 
     rowspan=12, 
@@ -628,11 +650,55 @@ def showTrackselection(*args):
         lboxCountry = country
         SelectTrack(country)
         
+def SliderEvent(*args):
+    autoUseChanges = config['autoUseChanges']
+    autoSaveChanges = config['autoSaveChanges']
+    if autoUseChanges == True and autoSaveChanges == True:
+        UseSave()
+        return
+    if autoUseChanges == True:
+        Use()
+    if autoSaveChanges == True:
+        Save()
+
 # Set event bindings for when the selection changes
 lbox.bind('<<ListboxSelect>>', showTrackselection)
 raceBox.bind("<<ComboboxSelected>>", raceBoxSelected)
 carsBox.bind("<<ComboboxSelected>>", carsBoxSelected)
 weatherBox.bind("<<ComboboxSelected>>", weatherBoxSelected)
+
+
+#slider event bindings
+#if config['autoUseChanges'] == True or config['autoSaveChanges'] == True:
+front_wing_Scale.bind("<ButtonRelease-1>", SliderEvent)
+rear_wing_Scale.bind("<ButtonRelease-1>", SliderEvent)
+on_throttle_Scale.bind("<ButtonRelease-1>", SliderEvent)
+off_throttle_Scale.bind("<ButtonRelease-1>", SliderEvent)
+front_camber_Scale.bind("<ButtonRelease-1>", SliderEvent)
+rear_camber_Scale.bind("<ButtonRelease-1>", SliderEvent)
+front_toe_Scale.bind("<ButtonRelease-1>", SliderEvent)
+rear_toe_Scale.bind("<ButtonRelease-1>", SliderEvent)
+front_suspension_Scale.bind("<ButtonRelease-1>", SliderEvent)
+rear_suspension_Scale.bind("<ButtonRelease-1>", SliderEvent)
+front_antiroll_bar_Scale.bind("<ButtonRelease-1>", SliderEvent)
+rear_antiroll_bar_Scale.bind("<ButtonRelease-1>", SliderEvent)
+
+front_suspension_height_Scale.bind("<ButtonRelease-1>", SliderEvent)
+rear_suspension_height_Scale.bind("<ButtonRelease-1>", SliderEvent)
+brake_pressure_Scale.bind("<ButtonRelease-1>", SliderEvent)
+brake_bias_Scale.bind("<ButtonRelease-1>", SliderEvent)
+front_right_tyre_pressure_Scale.bind("<ButtonRelease-1>", SliderEvent)
+front_left_tyre_pressure_Scale.bind("<ButtonRelease-1>", SliderEvent)
+rear_right_tyre_pressure_Scale.bind("<ButtonRelease-1>", SliderEvent)
+rear_left_tyre_pressure_Scale.bind("<ButtonRelease-1>", SliderEvent)
+ballast_Scale.bind("<ButtonRelease-1>", SliderEvent)
+fuel_load_Scale.bind("<ButtonRelease-1>", SliderEvent)
+ramp_differential_Scale.bind("<ButtonRelease-1>", SliderEvent)
+
+    
+    
+    
+    
 
 # Set the starting state of the interface, including selecting the
 # default weather to send, and clearing the messages.  Select the first
@@ -642,11 +708,11 @@ weather.set('Dry')
 statusmsg.set('')
 lbox.selection_set(0)
 
-#set the autoUseTrackBox button if autoUse is enabled
-with open('config.json') as json_file: 
-    config = json.load(json_file)     
-json_file.close()
-
+#check if boxes are checked in config.json
+if config['autoUseChanges'] == True:
+    autoUseChangesBox.invoke()
+if config['autoSaveChanges'] == True:
+    autoSaveChangesBox.invoke()
 if config['autoUseButton'] == True:
     autoUseTrackBox.invoke()
 
