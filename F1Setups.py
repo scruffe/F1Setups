@@ -13,15 +13,23 @@ import pathlib
 import json
 
 F1SetupPath = pathlib.Path(__file__).parent.absolute()
-
 root = Tk()
 root.title('F1 Setup editor')
 root.iconbitmap(str(F1SetupPath)+'/pog.ico')
 
+with open('config.json') as json_file: 
+    config = json.load(json_file)     
+json_file.close()
+
+with open('tracks.json', encoding='utf-8') as json_file: 
+    tracks = json.load(json_file) 
+json_file.close()
+
+theme = config['theme']
 s = ttk.Style() #s.theme_names('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
 root.tk.call('lappend', 'auto_path', str(F1SetupPath)) #'C:/Users//hello/awthemes-10.2.1/awthemes-10.2.1'
 root.tk.call('package', 'require', 'awdark')
-s.theme_use('awdark')
+s.theme_use(theme)
 
 steamappid = "1080110" #f12020 steam id
 WorkshopID = "2403338074" #f2 2404403390
@@ -35,12 +43,7 @@ fg = "white"
 scale_length = "200" #length of all the sliders
 scale_relief = "flat"
 
-with open('config.json') as json_file: 
-    config = json.load(json_file)     
-json_file.close()
 
-with open('tracks.json', encoding='utf-8') as json_file: 
-    tracks = json.load(json_file) 
 
 countrynames = list(tracks)
 
@@ -129,58 +132,19 @@ c.grid(column=0, row=0, sticky=(N,W,E,S))
 root.grid_columnconfigure(0, weight=1)
 root.grid_rowconfigure(0,weight=1)
 
-try:    #get steam install dir
-    hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Valve\Steam") #<PyHKEY:0x0000000000000094>
-except:
-    hkey = None
-    messagebox.showerror("error","Can't find steam registry key")
-
-try:
-    steam_path = winreg.QueryValueEx(hkey, "InstallPath")
-    steam_path = steam_path[0]
-except:
-    messagebox.showerror("error","Can't find steam Install directory")
-    steam_path = filedialog.askdirectory()
-
-winreg.CloseKey(hkey)
-
-try:    #get WorkshopFile install dir
-    libraryfolder = steam_path + r"\steamapps\libraryfolders.vdf"
-    with open(libraryfolder) as f: #"C:\Program Files (x86)\Steam\SteamApps\libraryfolders.vdf"
-        libraries = [steam_path] #C:\Program Files (x86)\Steam
-        lf = f.read()
-        libraries.extend([fn.replace("\\\\", "\\") for fn in
-            re.findall(r'^\s*"\d*"\s*"([^"]*)"', lf, re.MULTILINE)])
-        for library in libraries:   #in      ['C:\\Program Files (x86)\\Steam', 'D:\\SteamLibrary', 'X:\\SteamLibrary']
-            try:
-                appmanifest = library + r"\steamapps\appmanifest_" + steamappid + ".ACF"
-                with open(appmanifest) as ff: 
-                    ff.read()
-                    try:
-                        WorkshopFile = library+"/steamapps/workshop/content/"+steamappid+"/"+ WorkshopID +"/ugcitemcontent.bin"
-                        break
-                    except:
-                        messagebox.showerror("error", "Not Subscribed to steam workshop, Subscribe to: "+WorkshopUrl)
-                ff.close()
-            except:
-                appmanifest = None
-    f.close()
-except:
-    libraryfolder = None
-    messagebox.showerror("error","Can't find steam libraries")
-
 
 #grid the sliders 
 def Scalegrid(scale):
     global ri #row index
     row = ri
     column = 2
-    maxrows = 11
+    rowspan = 3
+    maxrows = 11*rowspan
     if ri >= maxrows:
         row -= maxrows 
         column = 4
-    scale.grid(row=row, column=column, columnspan=2, sticky='NSEW')#needs own line
-    ri += 1
+    scale.grid(row=row, column=column, columnspan=2, rowspan=rowspan, sticky='NSEW')#needs own line
+    ri += rowspan
 
 #remove ALL the sliders ,required if the race type changes(f1 , f2, etc)
 def forgetScales(): 
@@ -237,7 +201,7 @@ def gameModeScaleSettings(*args):
         Scalegrid(rear_antiroll_bar_Scale)
         Scalegrid(front_suspension_height_Scale)
         Scalegrid(rear_suspension_height_Scale)
-        ri+= 1
+        ri+= 3
         Scalegrid(front_right_tyre_pressure_Scale)
         Scalegrid(front_left_tyre_pressure_Scale)
         Scalegrid(rear_right_tyre_pressure_Scale)
@@ -248,11 +212,11 @@ def gameModeScaleSettings(*args):
         
         Scalegrid(front_wing_Scale)
         Scalegrid(rear_wing_Scale)
-        ri+= 1
+        ri+= 3
         Scalegrid(ramp_differential_Scale)
-        ri+= 1
+        ri+= 3
         Scalegrid(brake_bias_Scale)
-        ri+= 1
+        ri+= 3
         
         Scalegrid(front_camber_Scale)
         Scalegrid(rear_camber_Scale)
@@ -265,7 +229,7 @@ def gameModeScaleSettings(*args):
         Scalegrid(rear_antiroll_bar_Scale)
         Scalegrid(front_suspension_height_Scale)
         Scalegrid(rear_suspension_height_Scale)
-        ri+= 1
+        ri+= 3
         Scalegrid(front_right_tyre_pressure_Scale)
         Scalegrid(front_left_tyre_pressure_Scale)
         Scalegrid(rear_right_tyre_pressure_Scale)
@@ -399,6 +363,7 @@ def writeSetup(filename):
 
 #write to WorkshopFile
 def Use(): 
+    
     writeSetup(WorkshopFile)
     statusmsg.set("Using current setup")
 
@@ -455,10 +420,6 @@ def chooseweatherType(*args):
 
 #update config.json auto-use
 def updateConfig(name, var):
-    with open('config.json') as json_file: 
-        config = json.load(json_file)     
-    json_file.close()
-
     config[name] = var.get()
     
     with open("config.json", "w") as json_file:
@@ -543,23 +504,23 @@ openButton = ttk.Button(
 
 lbox.grid(
     column=0, row=0, 
-    rowspan=6, 
+    rowspan=19, 
     sticky=(N,S,E,W))
 raceBox.grid(
-    column=0, row=6, sticky=W)
+    column=0, row=20, sticky=W)
 carsBox.grid(
-    column=0, row=7, sticky=W)
+    column=0, row=21, sticky=W)
 weatherBox.grid(
-    column=0, row=8, sticky=W)
+    column=0, row=22, sticky=W)
 autoUseChangesBox.grid(
-    column=0, row=9, sticky=W, padx=10)
+    column=0, row=30, sticky=W, padx=10)
 autoSaveChangesBox.grid(
-    column=0, row=10, sticky=W, padx=10)
+    column=0, row=31, sticky=W, padx=10)
 autoUseTrackBox.grid(
-    column=0, row=11, sticky=W, padx=10)
+    column=0, row=32, sticky=W, padx=10)
 separatorV.grid(
     column=1, row=0, 
-    rowspan=12, 
+    rowspan=33, 
     sticky=(N,S,E,W))
 
 #buttons
@@ -722,8 +683,72 @@ carsBox.current(0)
 weatherBox.current(0)
 carsBox['values']=raceSettings[raceBox.get()] 
 
+#get WorkshopFile directory
+if config['WorkshopFile'] != "":
+    WorkshopFile = config['WorkshopFile']
+else:
+    if config['steam_path'] != "":
+        steam_path = config['steam_path']
+    else:
+        #get steam registry key
+        try:    
+            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Valve\Steam") #<PyHKEY:0x0000000000000094>
+        except:
+            hkey = None
+            messagebox.showerror("error","Can't find steam registry key")
+
+        #get steam install dir
+        try:
+            steam_path = winreg.QueryValueEx(hkey, "InstallPath")
+            steam_path = steam_path[0]
+        except:
+            messagebox.showerror("error","Can't find steam Install directory")
+            steam_path = filedialog.askdirectory()
+        
+        config['steam_path'] = steam_path
+
+        with open("config.json", "w") as json_file:
+            json.dump(config, json_file, indent=4)
+        json_file.close()
+        
+        winreg.CloseKey(hkey)
+
+    #get WorkshopFile install dir with steam install dir
+    try:    
+        libraryfolder = steam_path + r"\steamapps\libraryfolders.vdf"
+        with open(libraryfolder) as f: #"C:\Program Files (x86)\Steam\SteamApps\libraryfolders.vdf"
+            libraries = [steam_path] #C:\Program Files (x86)\Steam
+            lf = f.read()
+            libraries.extend([fn.replace("\\\\", "\\") for fn in
+                re.findall(r'^\s*"\d*"\s*"([^"]*)"', lf, re.MULTILINE)])
+            for library in libraries:   #in      ['C:\\Program Files (x86)\\Steam', 'D:\\SteamLibrary', 'X:\\SteamLibrary']
+                try:
+                    appmanifest = library + r"\steamapps\appmanifest_" + steamappid + ".ACF"
+                    with open(appmanifest) as ff: 
+                        ff.read()
+                        try:
+                            WorkshopFile = library+"/steamapps/workshop/content/"+steamappid+"/"+ WorkshopID +"/ugcitemcontent.bin"
+                            
+                            config['WorkshopFile'] = WorkshopFile
+
+                            with open("config.json", "w") as json_file:
+                                json.dump(config, json_file, indent=4)
+                            json_file.close()
+                            break
+                        except:
+                            messagebox.showerror("error", "Not Subscribed to steam workshop, Subscribe to: "+WorkshopUrl)
+                    ff.close()
+                except:
+                    appmanifest = None
+        f.close()
+    except:
+        libraryfolder = None
+        messagebox.showerror("error","Can't find steam libraries")
+
+
 #create sliders
 gameModeScaleSettings()
+
 #Load track
 showTrackselection()
 
