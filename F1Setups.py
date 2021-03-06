@@ -426,7 +426,10 @@ class Limiter(ttk.Scale):
 
     def _value_changed(self, newvalue):
         newvalue = round(float(newvalue), self.precision)
-        self.winfo_toplevel().globalsetvar(self.cget('variable'), (newvalue))
+        if self.precision == 0:
+            self.winfo_toplevel().globalsetvar(self.cget('variable'), (int(newvalue)))
+        else:
+            self.winfo_toplevel().globalsetvar(self.cget('variable'), (newvalue))
         self.chain(newvalue)  # Call user specified function.
 
 root.ri = 1
