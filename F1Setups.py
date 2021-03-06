@@ -1,6 +1,6 @@
 #from tkinter import *
 from tkinter import ttk
-from tkinter import Tk, Entry, EW, Scale, HORIZONTAL, DISABLED, Label, NSEW, Button, messagebox, filedialog, StringVar,BooleanVar,N,W,E,S,Listbox
+from tkinter import Tk, Entry, EW, Scale, HORIZONTAL, DISABLED, Label, NSEW, Button, messagebox, filedialog,DoubleVar,IntVar, StringVar,BooleanVar,N,W,E,S,Listbox
 from tkinter.ttk import Combobox
 from tkinter.filedialog import asksaveasfile
 import struct
@@ -123,8 +123,7 @@ autoUseChanges = BooleanVar()
 autoSaveChanges = BooleanVar()
 autoUse = BooleanVar()
 
-#set row integer used for deciding what role a slider(scale) goes
-ri = 0 
+ 
 
 # Create and grid the outer content frame
 c = ttk.Frame(root, padding=(5, 5, 12, 0))
@@ -133,137 +132,35 @@ root.grid_columnconfigure(0, weight=1)
 root.grid_rowconfigure(0,weight=1)
 
 
-#grid the sliders 
-def Scalegrid(scale):
-    global ri #row index
-    row = ri
-    column = 2
-    rowspan = 3
-    maxrows = 11*rowspan
-    if ri >= maxrows:
-        row -= maxrows 
-        column = 4
-    scale.grid(row=row, column=column, columnspan=2, rowspan=rowspan, sticky='NSEW')#needs own line
-    ri += rowspan
-
-#remove ALL the sliders ,required if the race type changes(f1 , f2, etc)
-def forgetScales(): 
-    front_wing_Scale.grid_forget()
-    front_wing_Scale.grid_forget()
-    rear_wing_Scale.grid_forget()
-    on_throttle_Scale.grid_forget()
-    off_throttle_Scale.grid_forget()
-    front_camber_Scale.grid_forget()
-    rear_camber_Scale.grid_forget()
-    front_toe_Scale.grid_forget()
-    rear_toe_Scale.grid_forget()
-    front_suspension_Scale.grid_forget()
-    rear_suspension_Scale.grid_forget()
-    front_antiroll_bar_Scale.grid_forget()
-    rear_antiroll_bar_Scale.grid_forget()
-    front_suspension_height_Scale.grid_forget()
-    rear_suspension_height_Scale.grid_forget()
-    brake_pressure_Scale.grid_forget()
-    brake_bias_Scale.grid_forget()
-    front_right_tyre_pressure_Scale.grid_forget()
-    front_left_tyre_pressure_Scale.grid_forget()
-    rear_right_tyre_pressure_Scale.grid_forget()
-    rear_left_tyre_pressure_Scale.grid_forget()
-    ballast_Scale.grid_forget()
-    fuel_load_Scale.grid_forget()
-    ramp_differential_Scale.grid_forget()
-
 #grid the sliders that we can use for this race type (f1, f2, etc)
 def gameModeScaleSettings(*args): 
-    global ri
-
     race = raceBox.get()
-    ri = 0
     if race == 'F1 2020':
-        Scalegrid(front_wing_Scale)
-        Scalegrid(rear_wing_Scale)
-        Scalegrid(on_throttle_Scale)
-        Scalegrid(off_throttle_Scale)
+        ballast_Scale.config(state='disabled')
+        ramp_differential_Scale.config(state='disabled')
 
-        Scalegrid(brake_pressure_Scale)
-        Scalegrid(brake_bias_Scale)
-
-        Scalegrid(fuel_load_Scale)
-
-        Scalegrid(front_camber_Scale)
-        Scalegrid(rear_camber_Scale)
-        Scalegrid(front_toe_Scale)
-        Scalegrid(rear_toe_Scale)
-
-        Scalegrid(front_suspension_Scale)
-        Scalegrid(rear_suspension_Scale)
-        Scalegrid(front_antiroll_bar_Scale)
-        Scalegrid(rear_antiroll_bar_Scale)
-        Scalegrid(front_suspension_height_Scale)
-        Scalegrid(rear_suspension_height_Scale)
-        ri+= 3
-        Scalegrid(front_right_tyre_pressure_Scale)
-        Scalegrid(front_left_tyre_pressure_Scale)
-        Scalegrid(rear_right_tyre_pressure_Scale)
-        Scalegrid(rear_left_tyre_pressure_Scale)
-
-
+        on_throttle_Scale.config(state='enabled')
+        off_throttle_Scale.config(state='enabled')
+        brake_pressure_Scale.config(state='enabled')
+        fuel_load_Scale.config(state='enabled')
+        
     elif race == 'F2 2020' or race == 'F2 2019': #f2 2020 & f2 2019
-        
-        Scalegrid(front_wing_Scale)
-        Scalegrid(rear_wing_Scale)
-        ri+= 3
-        Scalegrid(ramp_differential_Scale)
-        ri+= 3
-        Scalegrid(brake_bias_Scale)
-        ri+= 3
-        
-        Scalegrid(front_camber_Scale)
-        Scalegrid(rear_camber_Scale)
-        Scalegrid(front_toe_Scale)
-        Scalegrid(rear_toe_Scale)
+        ballast_Scale.config(state='enabled')
+        ramp_differential_Scale.config(state='enabled')
 
-        Scalegrid(front_suspension_Scale)
-        Scalegrid(rear_suspension_Scale)
-        Scalegrid(front_antiroll_bar_Scale)
-        Scalegrid(rear_antiroll_bar_Scale)
-        Scalegrid(front_suspension_height_Scale)
-        Scalegrid(rear_suspension_height_Scale)
-        ri+= 3
-        Scalegrid(front_right_tyre_pressure_Scale)
-        Scalegrid(front_left_tyre_pressure_Scale)
-        Scalegrid(rear_right_tyre_pressure_Scale)
-        Scalegrid(rear_left_tyre_pressure_Scale)
+        on_throttle_Scale.config(state='disabled')
+        off_throttle_Scale.config(state='disabled')
+        brake_pressure_Scale.config(state='disabled')
+        fuel_load_Scale.config(state='disabled')
 
     elif race == 'classic':  #save to diffrent file location
-        Scalegrid(front_wing_Scale)
-        Scalegrid(rear_wing_Scale)
-        Scalegrid(on_throttle_Scale)
-        Scalegrid(off_throttle_Scale)
+        ballast_Scale.config(state='enabled')
+        ramp_differential_Scale.config(state='disabled')
 
-        Scalegrid(brake_pressure_Scale)
-        Scalegrid(brake_bias_Scale)
-
-        Scalegrid(fuel_load_Scale)
-        
-        Scalegrid(front_camber_Scale)
-        Scalegrid(rear_camber_Scale)
-        Scalegrid(front_toe_Scale)
-        Scalegrid(rear_toe_Scale)
-
-        Scalegrid(front_suspension_Scale)
-        Scalegrid(rear_suspension_Scale)
-        Scalegrid(front_antiroll_bar_Scale)
-        Scalegrid(rear_antiroll_bar_Scale)
-        Scalegrid(front_suspension_height_Scale)
-        Scalegrid(rear_suspension_height_Scale)
-
-        Scalegrid(ballast_Scale)
-
-        Scalegrid(front_right_tyre_pressure_Scale)
-        Scalegrid(front_left_tyre_pressure_Scale)
-        Scalegrid(rear_right_tyre_pressure_Scale)
-        Scalegrid(rear_left_tyre_pressure_Scale)
+        on_throttle_Scale.config(state='enabled')
+        off_throttle_Scale.config(state='enabled')
+        brake_pressure_Scale.config(state='enabled')
+        fuel_load_Scale.config(state='enabled')
 
 #set the current slider values
 def setScale(setup):
@@ -298,7 +195,6 @@ def setScale(setup):
 # when race type changes; show new sliders and update the cars in carsbox  
 def raceBoxSelected(*args):
     global lboxCountry
-    forgetScales()
     gameModeScaleSettings() #show/hide sliders
     
     carsBox['values'] = raceSettings[raceBox.get()] 
@@ -426,8 +322,25 @@ def updateConfig(name, var):
         json.dump(config, json_file, indent=4)
     json_file.close()
 
+#create frames
+
+setupFrame = ttk.LabelFrame(
+    c, 
+    text = "Setup",
+    labelanchor='nw',
+    padding = 5
+    )
+setupFrame.grid(
+    row=0,
+    rowspan=9,
+    column=2,
+    columnspan=5)
+
+
+
 #create widgets
-lbox = Listbox(c, 
+lbox = Listbox(
+    c, 
     listvariable=cnames, 
     height=len(countrynames),
     bg=bg,
@@ -470,8 +383,8 @@ autoUseTrackBox = ttk.Checkbutton(c,
     offvalue=False,
     command= lambda: updateConfig('autoUseButton',autoUse))
 
-separatorV = ttk.Separator(c,
-    orient='vertical')
+#separatorV = ttk.Separator(c,
+#    orient='vertical')
 
 #create Button widgets
 useButton = ttk.Button(
@@ -500,28 +413,116 @@ openButton = ttk.Button(
     command=Open
     )
 
+
+# precision limiter
+#https://stackoverflow.com/questions/54186639/tkinter-control-ttk-scales-increment-as-with-tk-scale-and-a-tk-doublevar
+class Limiter(ttk.Scale):
+    """ ttk.Scale sublass that limits the precision of values. """
+
+    def __init__(self, *args, **kwargs):
+        self.precision = kwargs.pop('precision')  # Remove non-std kwarg.
+        self.chain = kwargs.pop('command', lambda *a: None)  # Save if present.
+        super(Limiter, self).__init__(*args, command=self._value_changed, **kwargs)
+
+    def _value_changed(self, newvalue):
+        newvalue = round(float(newvalue), self.precision)
+        self.winfo_toplevel().globalsetvar(self.cget('variable'), (newvalue))
+        self.chain(newvalue)  # Call user specified function.
+
+root.ri = 1
+#create & grid sliders(scale) widgets - return  scale
+def MakeScale(from_ , to, text, precision=0):
+    row = root.ri
+    root.ri += 1
+
+    w = ttk.Separator(setupFrame)
+    
+    #create space every 2
+    if (row % 3) == 0:
+        ttk.Label(
+            setupFrame, 
+            anchor=W).grid(row=row)
+        row += 1
+        root.ri += 1
+
+    input_var = DoubleVar(value=0.)
+    column =2
+    rowspan = 1
+    sticky = 'NSEW'
+    scale = Limiter(
+        setupFrame, 
+        from_=from_, 
+        to=to, 
+        orient=HORIZONTAL,
+        length=200,
+        variable=input_var,
+        precision=precision
+        )
+    scaleTxt = ttk.Label(
+        setupFrame, 
+        text=text, 
+        anchor=W)
+    scaleNr = ttk.Label(
+        setupFrame, 
+        textvariable = input_var, 
+        anchor=E,
+        width=5)
+    
+    w.grid(row=row)
+    scaleTxt.grid(row=row, column=column, columnspan=1, rowspan=rowspan, sticky=sticky)
+    scale.grid(row=row, column=column+1, columnspan=2, rowspan=rowspan, sticky=sticky)#needs own line
+    scaleNr.grid(row=row, column=column+4, columnspan=1, rowspan=rowspan, sticky=sticky)
+    
+    
+    return scale
+
+front_wing_Scale = MakeScale(1, 11,"Front wing")
+rear_wing_Scale = MakeScale(1, 11, "Rear wing")
+on_throttle_Scale = MakeScale(50, 100, "On throttle")
+off_throttle_Scale = MakeScale(50, 100, "Off throttle")
+front_camber_Scale = MakeScale(-3.5, -2.5, "Front camber",1) #, 0.1
+rear_camber_Scale = MakeScale(-2, -1, "Rear camber",1) 
+front_toe_Scale = MakeScale(0.05, 0.15, "Front toe",2) #, 0.01
+rear_toe_Scale = MakeScale(0.20, 0.50, "Rear toe",2)#, 0.03) #there is an offset
+front_suspension_Scale = MakeScale(1, 11, "Front suspension")
+rear_suspension_Scale = MakeScale(1, 11, "Rear suspension")
+front_antiroll_bar_Scale = MakeScale(1, 11, "Front antiroll bar")
+rear_antiroll_bar_Scale = MakeScale(1, 11, "Rear antiroll bar")
+
+front_suspension_height_Scale = MakeScale(1, 11, "Front suspension height")
+rear_suspension_height_Scale = MakeScale(1, 11, "Rear suspension height")
+brake_pressure_Scale = MakeScale(50, 100, "Brake pressure")
+brake_bias_Scale = MakeScale(70, 50, "Brake bias")
+front_right_tyre_pressure_Scale = MakeScale(21, 25, "Front right tyre pressure",1)#, 0.4) 
+front_left_tyre_pressure_Scale = MakeScale(21, 25, "Front left tyre pressure",1)#, 0.4) 
+rear_right_tyre_pressure_Scale = MakeScale(19.5, 23.5, "Rear right tyre pressure",1)#, .4) 
+rear_left_tyre_pressure_Scale = MakeScale(19.5, 23.5, "Rear left tyre pressure",1)#, 0.4) 
+ballast_Scale = MakeScale(1, 11 , "Ballast")
+ramp_differential_Scale = MakeScale(70,100, "Ramp differential")
+fuel_load_Scale = MakeScale(5, 110, "Fuel load")
+
 # Grid all the widgets
 
 lbox.grid(
     column=0, row=0, 
-    rowspan=19, 
+    rowspan=3, 
     sticky=(N,S,E,W))
 raceBox.grid(
-    column=0, row=20, sticky=W)
+    column=0, row=3, sticky=W)
 carsBox.grid(
-    column=0, row=21, sticky=W)
+    column=0, row=4, sticky=W)
 weatherBox.grid(
-    column=0, row=22, sticky=W)
+    column=0, row=5, sticky=W)
 autoUseChangesBox.grid(
-    column=0, row=30, sticky=W, padx=10)
+    column=0, row=6, sticky=W, padx=10)
 autoSaveChangesBox.grid(
-    column=0, row=31, sticky=W, padx=10)
+    column=0, row=7, sticky=W, padx=10)
 autoUseTrackBox.grid(
-    column=0, row=32, sticky=W, padx=10)
-separatorV.grid(
-    column=1, row=0, 
-    rowspan=33, 
-    sticky=(N,S,E,W))
+    column=0, row=8, sticky=W, padx=10)
+#separatorV.grid(
+#    column=1, row=0, 
+#    rowspan=33, 
+#    sticky=(N,S,E,W))
 
 #buttons
 useButton.grid(
@@ -547,51 +548,6 @@ c.grid_rowconfigure(5, weight=1)
 # Colorize alternating lines of the listbox
 for i in range(0,len(countrynames),2):
     lbox.itemconfigure(i, background='#576366',fg=fg)
-
-#create sliders(scale) widgets - return  scale
-def MakeScale(from_ , to,  label, resolution=1):
-    scale = Scale(
-        c, 
-        from_=from_, 
-        to=to, 
-        orient=HORIZONTAL, 
-        label=label, 
-        length=scale_length,
-        relief=scale_relief, 
-        bg=bg,
-        fg=fg,
-        troughcolor=bg,
-        bd=3,
-        activebackground=bg,
-        highlightbackground=bg,
-        resolution=resolution)
-    return scale
-
-#slidername, create slider (from_ , to,  label, resolution)
-front_wing_Scale = MakeScale(1, 11,"Front wing")
-rear_wing_Scale = MakeScale(1, 11, "Rear wing")
-on_throttle_Scale = MakeScale(50, 100, "On throttle")
-off_throttle_Scale = MakeScale(50, 100, "Off throttle")
-front_camber_Scale = MakeScale(-3.5, -2.5, "Front camber", 0.1) 
-rear_camber_Scale = MakeScale(-2, -1, "Rear camber", 0.1) 
-front_toe_Scale = MakeScale(0.05, 0.15, "Front toe", 0.01) 
-rear_toe_Scale = MakeScale(0.20, 0.50, "Rear toe", 0.03) #there is an offset
-front_suspension_Scale = MakeScale(1, 11, "Front suspension")
-rear_suspension_Scale = MakeScale(1, 11, "Rear suspension")
-front_antiroll_bar_Scale = MakeScale(1, 11, "Front antiroll bar")
-rear_antiroll_bar_Scale = MakeScale(1, 11, "Rear antiroll bar")
-
-front_suspension_height_Scale = MakeScale(1, 11, "Front suspension height")
-rear_suspension_height_Scale = MakeScale(1, 11, "Rear suspension height")
-brake_pressure_Scale = MakeScale(50, 100, "Brake pressure")
-brake_bias_Scale = MakeScale(70, 50, "Brake bias")
-front_right_tyre_pressure_Scale = MakeScale(21, 25, "Front right tyre pressure", 0.4) 
-front_left_tyre_pressure_Scale = MakeScale(21, 25, "Front left tyre pressure", 0.4) 
-rear_right_tyre_pressure_Scale = MakeScale(19.5, 23.5, "Rear right tyre pressure", .4) 
-rear_left_tyre_pressure_Scale = MakeScale(19.5, 23.5, "Rear left tyre pressure", 0.4) 
-ballast_Scale = MakeScale(1, 11 , "Ballast")
-fuel_load_Scale = MakeScale(5, 110, "Fuel load")
-ramp_differential_Scale = MakeScale(70,100, "Ramp differential")
 
 
 

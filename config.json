@@ -3,7 +3,7 @@
     "WorkshopFile": "D:\\SteamLibrary/steamapps/workshop/content/1080110/2403338074/ugcitemcontent.bin",
     "workshopfileDir": "",
     "autoUseChanges": true,
-    "autoSaveChanges": true,
+    "autoSaveChanges": false,
     "autoUseButton": true,
     "theme": "awdark"
 }
