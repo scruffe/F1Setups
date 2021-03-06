@@ -133,10 +133,6 @@ root.grid_rowconfigure(0,weight=1)
 #got to webbrowser
 def OpenUrl(url):
     webbrowser.open_new(url)
-    
-
-
-
 
 #grid the sliders that we can use for this race type (f1, f2, etc)
 def gameModeScaleSettings(*args): 
@@ -168,16 +164,33 @@ def gameModeScaleSettings(*args):
         brake_pressure_Scale.config(state='enabled')
         fuel_load_Scale.config(state='enabled')
 
+def fixSet(value, offset, step , res=1):
+    # 21.4 - 21 = 0.4 remainder / 0.4 = 1
+    # value - offset = 0 + step remainder / step = result
+
+    product = round(value - offset,  res)
+    pruduct = round(product / step , res )
+    #product = round(21.8 - 21.0,  1)
+    #pruduct = round(product / .4 , 1 )
+    #print(pruduct)
+    return pruduct
+
 #set the current slider values
 def setScale(setup):
+
+
+
     front_wing_Scale.set(setup[41])
     rear_wing_Scale.set(setup[44])
     on_throttle_Scale.set(setup[47])
     off_throttle_Scale.set(setup[50])
-    front_camber_Scale.set(setup[53]) #-2,50
-    rear_camber_Scale.set(setup[56])  #-1.00
-    front_toe_Scale.set(setup[59]) #0.15
-    rear_toe_Scale.set(setup[62])
+
+
+    front_camber_Scale.set(fixSet(setup[53], -3.5, 0.1))
+    rear_camber_Scale.set(fixSet(setup[56], -2, 0.1))
+    front_toe_Scale.set(fixSet(setup[59], 0.05, 0.01, 2))
+    rear_toe_Scale.set(fixSet(setup[62], 0.20, 0.03, 2))
+
     front_suspension_Scale.set(setup[65])
     rear_suspension_Scale.set(setup[68])
     front_suspension_height_Scale.set(setup[71])
@@ -186,14 +199,17 @@ def setScale(setup):
     rear_antiroll_bar_Scale.set(setup[80])
     brake_pressure_Scale.set(setup[83])
     brake_bias_Scale.set(setup[86])
-    front_right_tyre_pressure_Scale.set(setup[89])
-    front_left_tyre_pressure_Scale.set(setup[92])
-    rear_right_tyre_pressure_Scale.set(setup[95])
-    rear_left_tyre_pressure_Scale.set(setup[98])
+
+    front_right_tyre_pressure_Scale.set(fixSet(setup[89], 21, 0.4))
+    front_left_tyre_pressure_Scale.set(fixSet(setup[92], 21, 0.4))
+    rear_right_tyre_pressure_Scale.set(fixSet(setup[95], 19.5, 0.4))
+    rear_left_tyre_pressure_Scale.set(fixSet(setup[98], 19.5, 0.4))
+
     ballast_Scale.set(setup[101])
     fuel_load_Scale.set(setup[104])
     ramp_differential_Scale.set(setup[107])
 
+    print(rear_camber_Scale.get())
 
 # combobox command functions  
 # comboxes need to remember previous selected track, as they become unselected.
@@ -232,10 +248,10 @@ def packSetup():
     b'rear_wingfp32', rear_wing_Scale.get(), 11,
     b'on_throttlefp32', on_throttle_Scale.get(), 12,
     b'off_throttlefp32', off_throttle_Scale.get(), 12,
-    b'front_camberfp32', front_camber_Scale.get(), 11,
-    b'rear_camberfp32', rear_camber_Scale.get(), 9,
-    b'front_toefp32', front_toe_Scale.get(), 8,
-    b'rear_toefp32', rear_toe_Scale.get(), 16,
+    b'front_camberfp32', fixget(front_camber_Scale.get(), -3.5, 0.1) , 11,
+    b'rear_camberfp32', fixget(rear_camber_Scale.get(), -2, 0.1), 9,
+    b'front_toefp32', fixget(front_toe_Scale.get(), 0.05, 0.01, 2), 8,
+    b'rear_toefp32', fixget(rear_toe_Scale.get(), 0.20, 0.03, 2), 16,
     b'front_suspensionfp32', front_suspension_Scale.get(), 15, 
     b'rear_suspensionfp32', rear_suspension_Scale.get(), 23, 
     b'front_suspension_heightfp32', front_suspension_height_Scale.get(), 22,
@@ -244,10 +260,10 @@ def packSetup():
     b'rear_antiroll_barfp32', rear_antiroll_bar_Scale.get(), 14,
     b'brake_pressurefp32', brake_pressure_Scale.get(), 10,
     b'brake_biasfp32', brake_bias_Scale.get(), 25,
-    b'front_right_tyre_pressurefp32' , front_right_tyre_pressure_Scale.get(), 24,
-    b'front_left_tyre_pressurefp32', front_left_tyre_pressure_Scale.get(), 24,
-    b'rear_right_tyre_pressurefp32', rear_right_tyre_pressure_Scale.get(), 23,
-    b'rear_left_tyre_pressurefp32', rear_left_tyre_pressure_Scale.get(), 7,
+    b'front_right_tyre_pressurefp32' , fixget(front_right_tyre_pressure_Scale.get(), 21, 0.4), 24,
+    b'front_left_tyre_pressurefp32', fixget(front_left_tyre_pressure_Scale.get(), 21, 0.4), 24,
+    b'rear_right_tyre_pressurefp32', fixget(rear_right_tyre_pressure_Scale.get(), 19.5, 0.4), 23,
+    b'rear_left_tyre_pressurefp32', fixget(rear_left_tyre_pressure_Scale.get(), 19.5, 0.4), 7,
     b'ballastfp32', ballast_Scale.get(), 9,
     b'fuel_loadfp32', fuel_load_Scale.get(), 17,
     b'ramp_differentialfp32', ramp_differential_Scale.get(), 17,
@@ -445,9 +461,15 @@ class Limiter(ttk.Scale):
             self.winfo_toplevel().globalsetvar(self.cget('variable'), (newvalue))
         self.chain(newvalue)  # Call user specified function.
 
+
+def fixget(value, offset, step , res=1):
+    multiplier =  round(value * step - step, res)
+    product = round(offset + multiplier, res)
+    return product
+
 root.ri = 1
 #create & grid sliders(scale) widgets - return  scale
-def MakeScale(from_ , to, text, precision=0):
+def MakeScale(from_ , to, text,  step=0 , offset=1, res=1):
     row = root.ri
     root.ri += 1
 
@@ -465,6 +487,9 @@ def MakeScale(from_ , to, text, precision=0):
     column =2
     rowspan = 1
     sticky = 'NSEW'
+
+    input_var = IntVar()
+
     scale = Limiter(
         setupFrame, 
         from_=from_, 
@@ -472,17 +497,29 @@ def MakeScale(from_ , to, text, precision=0):
         orient=HORIZONTAL,
         length=200,
         variable=input_var,
-        precision=precision
+        precision=0 ##
         )
     scaleTxt = ttk.Label(
         setupFrame, 
         text=text, 
         anchor=W)
     scaleNr = ttk.Label(
-        setupFrame, 
-        textvariable = input_var, 
-        anchor=E,
-        width=5)
+            setupFrame, 
+            textvariable = input_var, 
+            anchor=E,
+            width=5)
+    
+    if step != 0:  
+        def update_other_label(name1, name2, mode):
+            value = input_var.get()
+            product = fixget(value, offset, step, res)            
+
+            input_var_mult.set(product)
+        input_var.trace("w", update_other_label)
+        input_var_mult = DoubleVar()
+        
+        scaleNr.config(textvariable = input_var_mult)
+    
     
     w.grid(row=row)
     scaleTxt.grid(row=row, column=column, columnspan=1, rowspan=rowspan, sticky=sticky)
@@ -496,10 +533,10 @@ front_wing_Scale = MakeScale(1, 11,"Front wing")
 rear_wing_Scale = MakeScale(1, 11, "Rear wing")
 on_throttle_Scale = MakeScale(50, 100, "On throttle")
 off_throttle_Scale = MakeScale(50, 100, "Off throttle")
-front_camber_Scale = MakeScale(-3.5, -2.5, "Front camber",1) #, 0.1
-rear_camber_Scale = MakeScale(-2, -1, "Rear camber",1) 
-front_toe_Scale = MakeScale(0.05, 0.15, "Front toe",2) #, 0.01
-rear_toe_Scale = MakeScale(0.20, 0.50, "Rear toe",2)#, 0.03) #there is an offset
+front_camber_Scale = MakeScale(1, 11, "Front camber", 0.1, -3.5)
+rear_camber_Scale = MakeScale(1, 11, "Rear camber", 0.1, -2) 
+front_toe_Scale = MakeScale(1, 11, "Front toe", 0.01, 0.05, 2)
+rear_toe_Scale = MakeScale(1, 11, "Rear toe", 0.03, 0.20, 2) #there is an offset
 front_suspension_Scale = MakeScale(1, 11, "Front suspension")
 rear_suspension_Scale = MakeScale(1, 11, "Rear suspension")
 front_antiroll_bar_Scale = MakeScale(1, 11, "Front antiroll bar")
@@ -509,14 +546,15 @@ front_suspension_height_Scale = MakeScale(1, 11, "Front suspension height")
 rear_suspension_height_Scale = MakeScale(1, 11, "Rear suspension height")
 brake_pressure_Scale = MakeScale(50, 100, "Brake pressure")
 brake_bias_Scale = MakeScale(70, 50, "Brake bias")
-front_right_tyre_pressure_Scale = MakeScale(21, 25, "Front right tyre pressure",1)#, 0.4) 
-front_left_tyre_pressure_Scale = MakeScale(21, 25, "Front left tyre pressure",1)#, 0.4) 
-rear_right_tyre_pressure_Scale = MakeScale(19.5, 23.5, "Rear right tyre pressure",1)#, .4) 
-rear_left_tyre_pressure_Scale = MakeScale(19.5, 23.5, "Rear left tyre pressure",1)#, 0.4) 
+front_right_tyre_pressure_Scale = MakeScale(1, 11, "Front right tyre pressure", .4, 21)#, 0.4) 
+front_left_tyre_pressure_Scale = MakeScale(1, 11, "Front left tyre pressure", .4, 21) 
+rear_right_tyre_pressure_Scale = MakeScale(1, 11, "Rear right tyre pressure", .4, 19.5) 
+rear_left_tyre_pressure_Scale = MakeScale(1, 11, "Rear left tyre pressure", .4, 19.5) 
 ballast_Scale = MakeScale(1, 11 , "Ballast")
 ramp_differential_Scale = MakeScale(70,100, "Ramp differential")
 fuel_load_Scale = MakeScale(5, 110, "Fuel load")
 
+#test = MakeScale(1, 11, "test",.4 , 21)
 # Grid all the widgets
 
 lbox.grid(
