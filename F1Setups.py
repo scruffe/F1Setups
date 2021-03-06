@@ -4,7 +4,7 @@ from tkinter import Tk, Entry, EW, Scale, HORIZONTAL, DISABLED, Label, NSEW, But
 from tkinter.ttk import Combobox
 from tkinter.filedialog import asksaveasfile
 import struct
-
+import webbrowser
 import sys
 import winreg
 import re
@@ -37,12 +37,10 @@ WorkshopID = "2403338074" #f2 2404403390
 WorkshopUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id="+ WorkshopID
 SetupDir = str(F1SetupPath) + "/Setups/" #"c:\Users\\hello\F1Setups/Setups/
 setupStructFormat = '<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16sfb 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B'
+tip = "https://paypal.me/valar"
 
 bg = "#33393b"
 fg = "white"
-scale_length = "200" #length of all the sliders
-scale_relief = "flat"
-
 
 
 countrynames = list(tracks)
@@ -130,6 +128,14 @@ c = ttk.Frame(root, padding=(5, 5, 12, 0))
 c.grid(column=0, row=0, sticky=(N,W,E,S))
 root.grid_columnconfigure(0, weight=1)
 root.grid_rowconfigure(0,weight=1)
+
+
+#got to webbrowser
+def OpenUrl(url):
+    webbrowser.open_new(url)
+    
+
+
 
 
 #grid the sliders that we can use for this race type (f1, f2, etc)
@@ -413,6 +419,13 @@ openButton = ttk.Button(
     command=Open
     )
 
+#create Tip widget
+tipBtn = ttk.Button(
+    c, 
+    text="Tip", 
+    command=lambda: OpenUrl(tip)
+    )
+
 
 # precision limiter
 #https://stackoverflow.com/questions/54186639/tkinter-control-ttk-scales-increment-as-with-tk-scale-and-a-tk-doublevar
@@ -539,7 +552,7 @@ saveAsButton.grid(
     column=4, row=50, sticky=NSEW)
 openButton.grid(
     column=5, row=50, sticky=NSEW)
-
+tipBtn.grid(column=6, row=50, sticky=NSEW)
 #statusbar
 status.grid(
     column=0, row=60, columnspan=6, sticky=(W,E))
