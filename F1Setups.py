@@ -746,7 +746,8 @@ else:
                             json_file.close()
                             break
                         except:
-                            messagebox.showerror("error", "Not Subscribed to steam workshop, Subscribe to: "+WorkshopUrl)
+                            messagebox.showerror("error", "Not Subscribed to steam workshop, Subscribe to: "+ WorkshopUrl)
+                            OpenUrl(WorkshopUrl)
                     ff.close()
                 except:
                     appmanifest = None
