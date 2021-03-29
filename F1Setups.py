@@ -278,23 +278,37 @@ def getWeatherId():
         return 0
     else:
         return 1
+def getTeamId():
+    teamIDs = [                                #https://forums.codemasters.com/topic/50942-f1-2020-udp-specification/
+        "Mercedes",
+        "Ferrari",
+        "Red Bull",
+        "Williams",
+        "Racing Point",
+        "Renault",
+        "AlphaTauri",
+        "Haas",
+        "McLaren",
+        "Alfa Romeo"
+        ]
+    team = carsBox.get()
+    if team == "All Cars":
+        return 41 #multiplayer car
+    else:
+        return teamIDs.index(team)
 
 #packed setup file with the current slider-values  -return setup
 def packSetup():
-    #team_id = 0 # 0,0
-    track_id = getTrackId() #bahrain
-    weather_typebool = getWeatherId()
-
     #all vars have a check value at the end, i have no idea what they do. Remove them and the game crashes. ¯\_(ツ)_/¯
     setup = struct.pack(setupStructFormat, 
     b'F1CS', 0,1,0,32,0 ,7,                  #\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x07
     b'versionsi32', 0, 9,                     #\x00\x00\x00\x00\t
     b'save_names128', 20,                    #\x14      probably string length of next name
     b'All setups | scruffe', 7,              #\x07 
-    b'team_idui16', 0,0,8,                   #\x00\x00\x08
-    b'track_idui08',track_id,12,                    #\x03\x0c
+    b'team_idui16', getTeamId(),0,8,                   #\x00\x00\x08
+    b'track_idui08', getTrackId(),12,                    #\x03\x0c
     b'game_mode_idsi32',5,12,                #\x05\x00\x00\x00 \x0c
-    b'weather_typebool',weather_typebool,9,                 #\x01\t
+    b'weather_typebool',getWeatherId(),9,                 #\x01\t
     b'timestampui64',19,14,5,95,0,0,0,0,15,  #\x13\x0e\x05_\x00\x00\x00\x00\x0f
     b'game_setup_modeui08',0,10,              #\x00\n
     b'front_wingfp32', front_wing_Scale.get(), 9,
