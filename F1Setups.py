@@ -231,17 +231,64 @@ def weatherBoxSelected(*args):
     global lboxCountry
     SelectTrack(lboxCountry)
 
+
+
+def getList(dict):
+        
+        return [*dict]
+
+def getTrackId():
+    global lboxCountry                                                  #currently selected track
+    tracksSeason = {
+        "Australia": "Melbourne Grand Prix Circuit",
+        "France": "Circuit Paul Ricard",
+        "China": "Shanghai International Circuit",
+        "Bahrain": "Bahrain International Circuit",
+        "Spain": "Circuit de Barcelona-Catalunya",
+        "Monaco": "Circuit de Monaco",
+        "Canada": "Circuit Gilles-Villeneuve",
+        "Britain": "Silverstone Circuit",
+        "Hockenheim": "ITS NOT EVEN SHIPPED",
+        "Hungary": "Hungaroring",
+        "Belgium": "Circuit De Spa-Francorchamps",
+        "Italy": "Autodromo Nazionale Monza",
+        "Singapore": "Marina Bay Street Circuit",
+        "Japan": "Suzuka International Racing Course",
+        "Abu Dhabi": "Yas Marina Circuit",
+        "USA": "Circuit of The Americas",
+        "Brazil": "Autódromo José Carlos Pace",
+        "Austria": "Spielberg" ,
+        "Russia": "Sochi Autodrom",
+        "México": "Autódromo Hermanos Rodríguez",
+        "Azerbaijan": "Baku City Circuit",
+        "Bahrain Short": "Bahrain International Circuit (Short)",
+        "Britain Short": "Silverstone Circuit (Short)",
+        "USA Short": "Circuit of The Americas (Short)",
+        "Japan Short": "Suzuka International Racing Course (Short)",
+        "Vietnam": "Hanoi Circuit",
+        "The Netherlands": "Circuit Zandvoort"
+    }
+    
+    trackList = getList(tracksSeason)
+    track_id = trackList.index(lboxCountry)
+    return track_id
+
 #packed setup file with the current slider-values  -return setup
 def packSetup():
+    #team_id = 0 # 0,0
+    track_id = getTrackId() #bahrain
+    weather_typebool = 1
+
+    #all vars have a check value at the end, i have no idea what they do. Remove them and the game crashes. ¯\_(ツ)_/¯
     setup = struct.pack(setupStructFormat, 
     b'F1CS', 0,1,0,32,0 ,7,                  #\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x07
     b'versionsi32', 0, 9,                     #\x00\x00\x00\x00\t
     b'save_names128', 20,                    #\x14      probably string length of next name
     b'All setups | scruffe', 7,              #\x07 
     b'team_idui16', 0,0,8,                   #\x00\x00\x08
-    b'track_idui08',3,12,                    #\x03\x0c
+    b'track_idui08',track_id,12,                    #\x03\x0c
     b'game_mode_idsi32',5,12,                #\x05\x00\x00\x00 \x0c
-    b'weather_typebool',1,9,                 #\x01\t
+    b'weather_typebool',weather_typebool,9,                 #\x01\t
     b'timestampui64',19,14,5,95,0,0,0,0,15,  #\x13\x0e\x05_\x00\x00\x00\x00\x0f
     b'game_setup_modeui08',0,10,              #\x00\n
     b'front_wingfp32', front_wing_Scale.get(), 9,
@@ -473,7 +520,7 @@ def MakeScale(from_ , to, text,  step=0 , offset=1, res=1):
     row = root.ri
     root.ri += 1
 
-    w = ttk.Separator(setupFrame)
+    separator = ttk.Separator(setupFrame)
     
     #create space every 2
     if (row % 3) == 0:
@@ -521,7 +568,7 @@ def MakeScale(from_ , to, text,  step=0 , offset=1, res=1):
         scaleNr.config(textvariable = input_var_mult)
     
     
-    w.grid(row=row)
+    separator.grid(row=row)
     scaleTxt.grid(row=row, column=column, columnspan=1, rowspan=rowspan, sticky=sticky)
     scale.grid(row=row, column=column+1, columnspan=2, rowspan=rowspan, sticky=sticky)#needs own line
     scaleNr.grid(row=row, column=column+4, columnspan=1, rowspan=rowspan, sticky=sticky)
