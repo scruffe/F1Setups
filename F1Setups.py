@@ -272,12 +272,18 @@ def getTrackId():
     trackList = getList(tracksSeason)
     track_id = trackList.index(lboxCountry)
     return track_id
+def getWeatherId():
+    weather = weatherBox.get()
+    if weather == "Wet":
+        return 0
+    else:
+        return 1
 
 #packed setup file with the current slider-values  -return setup
 def packSetup():
     #team_id = 0 # 0,0
     track_id = getTrackId() #bahrain
-    weather_typebool = 1
+    weather_typebool = getWeatherId()
 
     #all vars have a check value at the end, i have no idea what they do. Remove them and the game crashes. ¯\_(ツ)_/¯
     setup = struct.pack(setupStructFormat, 
