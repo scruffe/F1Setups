@@ -9,7 +9,7 @@ import sys
 import winreg
 import re
 import pathlib
-
+import os
 import json
 
 F1SetupPath = pathlib.Path(__file__).parent.absolute()
@@ -31,13 +31,17 @@ root.tk.call('lappend', 'auto_path', str(F1SetupPath)) #'C:/Users//hello/awtheme
 root.tk.call('package', 'require', 'awdark')
 s.theme_use(theme)
 
-steamappid = "1080110" #f12020 steam id
-WorkshopID = "2403338074" #f2 2404403390
-#WorkshopFile = "D:/SteamLibrary/steamapps/workshop/content/1080110/"+ WorkshopID +"/ugcitemcontent.bin"
-WorkshopUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id="+ WorkshopID
+
 SetupDir = str(F1SetupPath) + "/Setups/" #"c:\Users\\hello\F1Setups/Setups/
+
+# structformat for (un-)packing the game setup binfile 
 setupStructFormat = '<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16sfb 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B'
-tip = "https://paypal.me/valar"
+
+tipURL = "https://paypal.me/valar"
+
+f1_2020_steamID = "1080110"
+scruffe_WorkshopID = "2403338074" #f2 2404403390
+scruffe_WorkshopUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id="+ scruffe_WorkshopID
 
 bg = "#33393b"
 fg = "white"
@@ -129,6 +133,57 @@ c.grid(column=0, row=0, sticky=(N,W,E,S))
 root.grid_columnconfigure(0, weight=1)
 root.grid_rowconfigure(0,weight=1)
 
+def setConfig(key, value):
+    config[key] = value
+    with open("config.json", "w") as json_file:
+        json.dump(config, json_file, indent=4)
+    json_file.close()
+
+def setSteamPath():
+    try:    
+        hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Valve\Steam") #<PyHKEY:0x0000000000000094>
+        steam_path = winreg.QueryValueEx(hkey, "InstallPath")
+        steam_path = steam_path[0]
+        winreg.CloseKey(hkey)
+    except:
+        messagebox.showerror("error","Can't find steam Install directory")
+        steam_path = filedialog.askdirectory()   #manual entry
+    setConfig('steam_path', steam_path)
+
+def getSteamPath():
+    if not os.path.isdir(config['steam_path']):
+        setSteamPath()
+    return config['steam_path']
+
+
+def setWorkshop_dir():  
+    steam_path = getSteamPath() 
+    libraryfolders_data = steam_path + r"\steamapps\libraryfolders.vdf"
+    with open(libraryfolders_data) as f: 
+        libraries = [steam_path]
+        lf = f.read()
+        libraries.extend([fn.replace("\\\\", "\\") for fn in
+            re.findall(r'^\s*"\d*"\s*"([^"]*)"', lf, re.MULTILINE)])
+        for library in libraries:   
+            appmanifest = library + r"\steamapps\appmanifest_" + f1_2020_steamID + ".ACF"
+            if os.path.isfile(appmanifest):
+                with open(appmanifest) as ff: 
+                    ff.read()
+                    WorkshopFile = library+"/steamapps/workshop/content/"+f1_2020_steamID+"/"+ scruffe_WorkshopID +"/ugcitemcontent.bin"
+                    if os.path.isfile(WorkshopFile):
+                        setConfig('WorkshopFile', WorkshopFile)
+                    else:
+                        messagebox.showerror("error", "Not Subscribed to steam workshop, Subscribe to: "+ scruffe_WorkshopUrl)
+                        OpenUrl(scruffe_WorkshopUrl)
+                ff.close()
+    f.close()
+
+
+def getWorkshop_dir():
+    if not os.path.isfile(config['WorkshopFile']):
+        setWorkshop_dir()
+    return config['WorkshopFile']
+
 
 #got to webbrowser
 def OpenUrl(url):
@@ -164,27 +219,22 @@ def gameModeScaleSettings(*args):
         brake_pressure_Scale.config(state='enabled')
         fuel_load_Scale.config(state='enabled')
 
+#This is so we can have 10 steps in our sliders with custom values
 def fixSet(value, offset, step , res=1):
-    # 21.4 - 21 = 0.4 remainder / 0.4 = 1
-    # value - offset = 0 + step remainder / step = result
-
     product = round(value - offset,  res)
     pruduct = round(product / step , res )
-    #product = round(21.8 - 21.0,  1)
-    #pruduct = round(product / .4 , 1 )
-    #print(pruduct)
     return pruduct
+def fixget(value, offset, step , res=1):
+    multiplier =  round(value * step - step, res)
+    product = round(offset + multiplier, res)
+    return product
 
 #set the current slider values
 def setScale(setup):
-
-
-
     front_wing_Scale.set(setup[41])
     rear_wing_Scale.set(setup[44])
     on_throttle_Scale.set(setup[47])
     off_throttle_Scale.set(setup[50])
-
 
     front_camber_Scale.set(fixSet(setup[53], -3.5, 0.1))
     rear_camber_Scale.set(fixSet(setup[56], -2, 0.1))
@@ -209,7 +259,6 @@ def setScale(setup):
     fuel_load_Scale.set(setup[104])
     ramp_differential_Scale.set(setup[107])
 
-    print(rear_camber_Scale.get())
 
 # combobox command functions  
 # comboxes need to remember previous selected track, as they become unselected.
@@ -223,18 +272,11 @@ def raceBoxSelected(*args):
     carsBox.current(0) #update carbox
     SelectTrack(lboxCountry)
 
-def carsBoxSelected(*args):
+def boxSelected(*args):
     global lboxCountry
     SelectTrack(lboxCountry)
-
-def weatherBoxSelected(*args):
-    global lboxCountry
-    SelectTrack(lboxCountry)
-
-
 
 def getList(dict):
-        
         return [*dict]
 
 def getTrackId():
@@ -299,6 +341,13 @@ def getTeamId():
 
 #packed setup file with the current slider-values  -return setup
 def packSetup():
+    #uint8  |Unsigned 8-bit integer
+    #int8   |Signed 8-bit integer
+    #uint16 |Unsigned 16-bit integer
+    #int16  |Signed  16-bit integer
+    #float  |Floating point (32-bit)
+    #uint64 |Unsigned 64-bit integer
+
     #all vars have a check value at the end, i have no idea what they do. Remove them and the game crashes. ¯\_(ツ)_/¯
     setup = struct.pack(setupStructFormat, 
     b'F1CS', 0,1,0,32,0 ,7,                  #\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x07
@@ -334,7 +383,7 @@ def packSetup():
     b'ballastfp32', ballast_Scale.get(), 9,
     b'fuel_loadfp32', fuel_load_Scale.get(), 17,
     b'ramp_differentialfp32', ramp_differential_Scale.get(), 17,
-    b'published_file_idui64', 31,174,162,128,0,0,0,0        # b'published_file_idui64\x1f\xae\xa2\x80\x00\x00\x00\x00'
+    b'published_file_idui64', 31,174,162,128,0,0,0,0        # b'published_file_idui64\x1f\xae\xa2\x80\x00\x00\x00\x00' 
     ) 
     
     return setup
@@ -348,15 +397,14 @@ def writeSetup(filename):
 
 #write to WorkshopFile
 def Use(): 
-    
+    WorkshopFile = getWorkshop_dir()
     writeSetup(WorkshopFile)
     statusmsg.set("Using current setup")
 
 #write to both current file and workshop
 def UseSave():
-    writeSetup(root.filename)
-    writeSetup(WorkshopFile)
-    statusmsg.set("Saved Preset & loaded as "+ root.filename)
+    Use()
+    Save()
 
 #write to current file
 def Save( ): 
@@ -403,13 +451,6 @@ def chooseweatherType(*args):
         country = countrynames[idx]
         SelectTrack(country)
 
-#update config.json auto-use
-def updateConfig(name, var):
-    config[name] = var.get()
-    
-    with open("config.json", "w") as json_file:
-        json.dump(config, json_file, indent=4)
-    json_file.close()
 
 #create frames
 
@@ -424,8 +465,6 @@ setupFrame.grid(
     rowspan=9,
     column=2,
     columnspan=5)
-
-
 
 #create widgets
 lbox = Listbox(
@@ -458,19 +497,19 @@ autoUseChangesBox = ttk.Checkbutton(c,
     variable=autoUseChanges, 
     onvalue=True, 
     offvalue=False,
-    command= lambda: updateConfig('autoUseChanges',autoUseChanges))
+    command= lambda: setConfig('autoUseChanges',autoUseChanges.get()))
 autoSaveChangesBox = ttk.Checkbutton(c, 
     text='Auto Save Changes', 
     variable=autoSaveChanges, 
     onvalue=True, 
     offvalue=False,
-    command= lambda: updateConfig('autoSaveChanges',autoSaveChanges))
+    command= lambda: setConfig('autoSaveChanges',autoSaveChanges.get()))
 autoUseTrackBox = ttk.Checkbutton(c, 
     text='Auto Use track', 
     variable=autoUse, 
     onvalue=True, 
     offvalue=False,
-    command= lambda: updateConfig('autoUseButton',autoUse))
+    command= lambda: setConfig('autoUseButton',autoUse.get()))
 
 #separatorV = ttk.Separator(c,
 #    orient='vertical')
@@ -502,11 +541,11 @@ openButton = ttk.Button(
     command=Open
     )
 
-#create Tip widget
+#create tipURL widget
 tipBtn = ttk.Button(
     c, 
-    text="Tip", 
-    command=lambda: OpenUrl(tip)
+    text="tipURL", 
+    command=lambda: OpenUrl(tipURL)
     )
 
 
@@ -529,10 +568,6 @@ class Limiter(ttk.Scale):
         self.chain(newvalue)  # Call user specified function.
 
 
-def fixget(value, offset, step , res=1):
-    multiplier =  round(value * step - step, res)
-    product = round(offset + multiplier, res)
-    return product
 
 root.ri = 1
 #create & grid sliders(scale) widgets - return  scale
@@ -702,8 +737,8 @@ def SliderEvent(*args):
 # Set event bindings for when the selection changes
 lbox.bind('<<ListboxSelect>>', showTrackselection)
 raceBox.bind("<<ComboboxSelected>>", raceBoxSelected)
-carsBox.bind("<<ComboboxSelected>>", carsBoxSelected)
-weatherBox.bind("<<ComboboxSelected>>", weatherBoxSelected)
+carsBox.bind("<<ComboboxSelected>>", boxSelected)
+weatherBox.bind("<<ComboboxSelected>>", boxSelected)
 
 
 #slider event bindings
@@ -760,74 +795,14 @@ carsBox.current(0)
 weatherBox.current(0)
 carsBox['values']=raceSettings[raceBox.get()] 
 
-#get WorkshopFile directory
-if config['WorkshopFile'] != "":
-    WorkshopFile = config['WorkshopFile']
-else:
-    if config['steam_path'] != "":
-        steam_path = config['steam_path']
-    else:
-        #get steam registry key
-        try:    
-            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Valve\Steam") #<PyHKEY:0x0000000000000094>
-        except:
-            hkey = None
-            messagebox.showerror("error","Can't find steam registry key")
-
-        #get steam install dir
-        try:
-            steam_path = winreg.QueryValueEx(hkey, "InstallPath")
-            steam_path = steam_path[0]
-        except:
-            messagebox.showerror("error","Can't find steam Install directory")
-            steam_path = filedialog.askdirectory()
-        
-        config['steam_path'] = steam_path
-
-        with open("config.json", "w") as json_file:
-            json.dump(config, json_file, indent=4)
-        json_file.close()
-        
-        winreg.CloseKey(hkey)
-
-    #get WorkshopFile install dir with steam install dir
-    try:    
-        libraryfolder = steam_path + r"\steamapps\libraryfolders.vdf"
-        with open(libraryfolder) as f: #"C:\Program Files (x86)\Steam\SteamApps\libraryfolders.vdf"
-            libraries = [steam_path] #C:\Program Files (x86)\Steam
-            lf = f.read()
-            libraries.extend([fn.replace("\\\\", "\\") for fn in
-                re.findall(r'^\s*"\d*"\s*"([^"]*)"', lf, re.MULTILINE)])
-            for library in libraries:   #in      ['C:\\Program Files (x86)\\Steam', 'D:\\SteamLibrary', 'X:\\SteamLibrary']
-                try:
-                    appmanifest = library + r"\steamapps\appmanifest_" + steamappid + ".ACF"
-                    with open(appmanifest) as ff: 
-                        ff.read()
-                        try:
-                            WorkshopFile = library+"/steamapps/workshop/content/"+steamappid+"/"+ WorkshopID +"/ugcitemcontent.bin"
-                            
-                            config['WorkshopFile'] = WorkshopFile
-
-                            with open("config.json", "w") as json_file:
-                                json.dump(config, json_file, indent=4)
-                            json_file.close()
-                            break
-                        except:
-                            messagebox.showerror("error", "Not Subscribed to steam workshop, Subscribe to: "+ WorkshopUrl)
-                            OpenUrl(WorkshopUrl)
-                    ff.close()
-                except:
-                    appmanifest = None
-        f.close()
-    except:
-        libraryfolder = None
-        messagebox.showerror("error","Can't find steam libraries")
 
 
-#create sliders
-gameModeScaleSettings()
 
-#Load track
-showTrackselection()
+if __name__ == "__main__":
+    #create sliders
+    gameModeScaleSettings()
+
+    #Load track
+    showTrackselection()
 
 root.mainloop()
