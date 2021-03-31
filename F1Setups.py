@@ -219,7 +219,7 @@ def gameModeScaleSettings(*args):
         brake_pressure_Scale.config(state='enabled')
         fuel_load_Scale.config(state='enabled')
 
-#This is so we can have 10 steps in our sliders with custom values
+#Translates the 10 steps in sliders to actual values for/from the setup files
 def fixSet(value, offset, step , res=1):
     product = round(value - offset,  res)
     pruduct = round(product / step , res )
@@ -230,7 +230,7 @@ def fixget(value, offset, step , res=1):
     return product
 
 #set the current slider values
-def setScale(setup):
+def SetSliders(setup):
     front_wing_Scale.set(setup[41])
     rear_wing_Scale.set(setup[44])
     on_throttle_Scale.set(setup[47])
@@ -388,43 +388,37 @@ def packSetup():
     
     return setup
 
-#write packedsetup to dir
-def writeSetup(filename):
+def Write_Setup(filename):
     setup = packSetup()
     with open(filename, 'wb') as file:
         file.write(setup)
     file.close()    
 
-#write to WorkshopFile
-def Use(): 
+def Use_Setup(): 
     WorkshopFile = getWorkshop_dir()
-    writeSetup(WorkshopFile)
+    Write_Setup(WorkshopFile)
     statusmsg.set("Using current setup")
 
-#write to both current file and workshop
-def UseSave():
-    Use()
-    Save()
-
-#write to current file
-def Save( ): 
-    writeSetup(root.filename)
+def Save_Setup(): 
+    Write_Setup(root.filename)
     statusmsg.set("Saved as: " + root.filename)
 
-#write to filedialogDir
-def SaveAs(): 
+def UseSave_Setup():
+    Use_Setup()
+    Save_Setup()
+
+def SaveAs_Setup(): 
     askedFilename =  filedialog.asksaveasfilename(initialdir = F1SetupPath,title = "Select file",filetypes = (("bin files","*.bin"),("all files","*.*")))
-    writeSetup(askedFilename)
+    Write_Setup(askedFilename)
     statusmsg.set("Saved: " + askedFilename)
 
-#open,unpack a setup.bin file and set sliders to files values          error if the file isnt a f1 2020 setup file
-def Open(): 
+def Open_Setup(): 
     try:
         root.filename =  filedialog.askopenfilename(initialdir = F1SetupPath,title = "Select file",filetypes = (("bin files","*.bin"),("all files","*.*")))
         setupFile = open(root.filename, "rb")
         setup = struct.unpack(setupStructFormat, setupFile.read())
         statusmsg.set(" Opened (" + root.filename + ")")
-        setScale(setup)
+        SetSliders(setup)
     except:
         messagebox.showerror("error","can't open")
 
@@ -438,9 +432,9 @@ def SelectTrack(country):
     root.filename = SetupDir + raceType +'/'+ carType +'/'+ setupType +'/'+ country  +".bin"
     setupFile = open(root.filename, "rb")
     setup = struct.unpack(setupStructFormat, setupFile.read())
-    setScale(setup)
+    SetSliders(setup)
     if autoUse.get() == True:   
-        Use()
+        Use_Setup()
     statusmsg.set(" %s | %s | (%s) %s [%s]" % (raceType, carType, country, circuit, setupWeatherType))
 
 #update the scales after switching setup type
@@ -518,33 +512,33 @@ autoUseTrackBox = ttk.Checkbutton(c,
 useButton = ttk.Button(
     c, 
     text="Use", 
-    command=Use
+    command=Use_Setup
     )
 useSaveButton = ttk.Button(
     c,
     text="Save & Use", 
-    command=UseSave
+    command=UseSave_Setup
     )
 saveButton = ttk.Button(
     c, 
     text="Save", 
-    command=Save
+    command=Save_Setup
     )
 saveAsButton = ttk.Button(
     c, 
     text="Save As", 
-    command=SaveAs
+    command=SaveAs_Setup
     )
 openButton = ttk.Button(
     c, 
     text="Open", 
-    command=Open
+    command=Open_Setup
     )
 
 #create tipURL widget
 tipBtn = ttk.Button(
     c, 
-    text="tipURL", 
+    text="Tip?", 
     command=lambda: OpenUrl(tipURL)
     )
 
@@ -727,12 +721,12 @@ def SliderEvent(*args):
     autoUseChanges = config['autoUseChanges']
     autoSaveChanges = config['autoSaveChanges']
     if autoUseChanges == True and autoSaveChanges == True:
-        UseSave()
+        UseSave_Setup()
         return
     if autoUseChanges == True:
-        Use()
+        Use_Setup()
     if autoSaveChanges == True:
-        Save()
+        Save_Setup()
 
 # Set event bindings for when the selection changes
 lbox.bind('<<ListboxSelect>>', showTrackselection)
