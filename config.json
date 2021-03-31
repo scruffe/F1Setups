@@ -4,5 +4,6 @@
     "autoUseChanges": true,
     "autoSaveChanges": false,
     "autoUseButton": true,
-    "theme": "awdark"
+    "theme": "awdark",
+    "defaultsetups": "All Cars"
 }

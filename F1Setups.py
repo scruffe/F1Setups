@@ -27,15 +27,14 @@ json_file.close()
 
 theme = config['theme']
 s = ttk.Style() #s.theme_names('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-root.tk.call('lappend', 'auto_path', str(F1SetupPath)) #'C:/Users//hello/awthemes-10.2.1/awthemes-10.2.1'
+root.tk.call('lappend', 'auto_path', str(F1SetupPath)) 
 root.tk.call('package', 'require', 'awdark')
 s.theme_use(theme)
 
 
-SetupDir = str(F1SetupPath) + "/Setups/" #"c:\Users\\hello\F1Setups/Setups/
+SetupDir = str(F1SetupPath) + "/Setups/" 
 
-# structformat for (un-)packing the game setup binfile 
-setupStructFormat = '<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16sfb 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B'
+setupStructPackingFormat = '<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16sfb 16s2b 13s9b 19s2b 14sfb13sfb15sfb16sfb16sfb15sfb13sfb12sfb20sfb19sfb27sfb26sfb22sfb21sfb18sfb14sfb29sfb28sfb28sfb27sfb11sfb13sfb21sfb21s8B'
 
 tipURL = "https://paypal.me/valar"
 
@@ -43,8 +42,8 @@ f1_2020_steamID = "1080110"
 scruffe_WorkshopID = "2403338074" #f2 2404403390
 scruffe_WorkshopUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id="+ scruffe_WorkshopID
 
-bg = "#33393b"
-fg = "white"
+bg = "#33393b" #backgroundcolor
+fg = "white" #forgroundcolor
 
 
 countrynames = list(tracks)
@@ -110,16 +109,19 @@ raceSettings= {'F1 2020' : ["All Cars",
         "1972 Lotus"]
 }
 
-# Names of the weatherType we can send
-weatherType = { 'Dry':'Dry setup', 'Wet':'Wet setup', 'Custom':'Custom'}
 
-race = list(raceSettings) #race = ('F1 2020', 'F2 2020', 'F2 2019', 'classic')
-weather_ = list(weatherType)
+weatherTypes = { 'Dry':'Dry setup', 'Wet':'Wet setup', 'Custom':'Custom'}
+
 
 cars = ('All Cars','')
+presetsetups = { 
+    'Preset 1':'Maximum Downforce',
+    'Preset 2':'Increased Downforce', 
+    'Preset 3':'Balanced/Default',
+    'Preset 4':'Increased Topspeed',
+    'Preset 5':'Maximum Topspeed'}
 
-# State variables
-weather = StringVar()
+#weather = StringVar()
 statusmsg = StringVar()
 autoUseChanges = BooleanVar()
 autoSaveChanges = BooleanVar()
@@ -127,11 +129,28 @@ autoUse = BooleanVar()
 
  
 
-# Create and grid the outer content frame
-c = ttk.Frame(root, padding=(5, 5, 12, 0))
-c.grid(column=0, row=0, sticky=(N,W,E,S))
-root.grid_columnconfigure(0, weight=1)
-root.grid_rowconfigure(0,weight=1)
+
+
+# precision limiter
+#https://stackoverflow.com/questions/54186639/tkinter-control-ttk-scales-increment-as-with-tk-scale-and-a-tk-doublevar
+class Limiter(ttk.Scale):
+    """ ttk.Scale sublass that limits the precision of values. """
+
+    def __init__(self, *args, **kwargs):
+        self.precision = kwargs.pop('precision')  # Remove non-std kwarg.
+        self.chain = kwargs.pop('command', lambda *a: None)  # Save if present.
+        super(Limiter, self).__init__(*args, command=self._value_changed, **kwargs)
+
+    def _value_changed(self, newvalue):
+        newvalue = round(float(newvalue), self.precision)
+        if self.precision == 0:
+            self.winfo_toplevel().globalsetvar(self.cget('variable'), (int(newvalue)))
+        else:
+            self.winfo_toplevel().globalsetvar(self.cget('variable'), (newvalue))
+        self.chain(newvalue)  # Call user specified function.
+
+
+
 
 def setConfig(key, value):
     config[key] = value
@@ -185,7 +204,6 @@ def getWorkshop_dir():
     return config['WorkshopFile']
 
 
-#got to webbrowser
 def OpenUrl(url):
     webbrowser.open_new(url)
 
@@ -220,26 +238,25 @@ def gameModeScaleSettings(*args):
         fuel_load_Scale.config(state='enabled')
 
 #Translates the 10 steps in sliders to actual values for/from the setup files
-def fixSet(value, offset, step , res=1):
+def setSliderOffset(value, offset, step , res=1):
     product = round(value - offset,  res)
     pruduct = round(product / step , res )
     return pruduct
-def fixget(value, offset, step , res=1):
+def getSliderOffset(value, offset, step , res=1):
     multiplier =  round(value * step - step, res)
     product = round(offset + multiplier, res)
     return product
 
-#set the current slider values
 def SetSliders(setup):
     front_wing_Scale.set(setup[41])
     rear_wing_Scale.set(setup[44])
     on_throttle_Scale.set(setup[47])
     off_throttle_Scale.set(setup[50])
 
-    front_camber_Scale.set(fixSet(setup[53], -3.5, 0.1))
-    rear_camber_Scale.set(fixSet(setup[56], -2, 0.1))
-    front_toe_Scale.set(fixSet(setup[59], 0.05, 0.01, 2))
-    rear_toe_Scale.set(fixSet(setup[62], 0.20, 0.03, 2))
+    front_camber_Scale.set(setSliderOffset(setup[53], -3.5, 0.1))
+    rear_camber_Scale.set(setSliderOffset(setup[56], -2, 0.1))
+    front_toe_Scale.set(setSliderOffset(setup[59], 0.05, 0.01, 2))
+    rear_toe_Scale.set(setSliderOffset(setup[62], 0.20, 0.03, 2))
 
     front_suspension_Scale.set(setup[65])
     rear_suspension_Scale.set(setup[68])
@@ -250,10 +267,10 @@ def SetSliders(setup):
     brake_pressure_Scale.set(setup[83])
     brake_bias_Scale.set(setup[86])
 
-    front_right_tyre_pressure_Scale.set(fixSet(setup[89], 21, 0.4))
-    front_left_tyre_pressure_Scale.set(fixSet(setup[92], 21, 0.4))
-    rear_right_tyre_pressure_Scale.set(fixSet(setup[95], 19.5, 0.4))
-    rear_left_tyre_pressure_Scale.set(fixSet(setup[98], 19.5, 0.4))
+    front_right_tyre_pressure_Scale.set(setSliderOffset(setup[89], 21, 0.4))
+    front_left_tyre_pressure_Scale.set(setSliderOffset(setup[92], 21, 0.4))
+    rear_right_tyre_pressure_Scale.set(setSliderOffset(setup[95], 19.5, 0.4))
+    rear_left_tyre_pressure_Scale.set(setSliderOffset(setup[98], 19.5, 0.4))
 
     ballast_Scale.set(setup[101])
     fuel_load_Scale.set(setup[104])
@@ -265,22 +282,24 @@ def SetSliders(setup):
 
 # when race type changes; show new sliders and update the cars in carsbox  
 def raceBoxSelected(*args):
-    global lboxCountry
+    global currentTrack
     gameModeScaleSettings() #show/hide sliders
     
     carsBox['values'] = raceSettings[raceBox.get()] 
     carsBox.current(0) #update carbox
-    SelectTrack(lboxCountry)
+    SelectTrack(currentTrack)
 
 def boxSelected(*args):
-    global lboxCountry
-    SelectTrack(lboxCountry)
+    global currentTrack
+
+    trackList = getList(tracks)
+    trackBox.selection_set(trackList.index(currentTrack))
 
 def getList(dict):
         return [*dict]
 
 def getTrackId():
-    global lboxCountry                                                  #currently selected track
+    global currentTrack                                                  #currently selected track
     tracksSeason = {
         "Australia": "Melbourne Grand Prix Circuit",
         "France": "Circuit Paul Ricard",
@@ -312,7 +331,7 @@ def getTrackId():
     }
     
     trackList = getList(tracksSeason)
-    track_id = trackList.index(lboxCountry)
+    track_id = trackList.index(currentTrack)
     return track_id
 def getWeatherId():
     weather = weatherBox.get()
@@ -341,15 +360,12 @@ def getTeamId():
 
 #packed setup file with the current slider-values  -return setup
 def packSetup():
-    #uint8  |Unsigned 8-bit integer
-    #int8   |Signed 8-bit integer
-    #uint16 |Unsigned 16-bit integer
-    #int16  |Signed  16-bit integer
-    #float  |Floating point (32-bit)
-    #uint64 |Unsigned 64-bit integer
+    #ui08  |Unsigned 8-bit integer
+    #i08   |Signed 8-bit integer
+    #fp32   |Floating point (32-bit)
 
     #all vars have a check value at the end, i have no idea what they do. Remove them and the game crashes. ¯\_(ツ)_/¯
-    setup = struct.pack(setupStructFormat, 
+    setup = struct.pack(setupStructPackingFormat, 
     b'F1CS', 0,1,0,32,0 ,7,                  #\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x07
     b'versionsi32', 0, 9,                     #\x00\x00\x00\x00\t
     b'save_names128', 20,                    #\x14      probably string length of next name
@@ -364,10 +380,10 @@ def packSetup():
     b'rear_wingfp32', rear_wing_Scale.get(), 11,
     b'on_throttlefp32', on_throttle_Scale.get(), 12,
     b'off_throttlefp32', off_throttle_Scale.get(), 12,
-    b'front_camberfp32', fixget(front_camber_Scale.get(), -3.5, 0.1) , 11,
-    b'rear_camberfp32', fixget(rear_camber_Scale.get(), -2, 0.1), 9,
-    b'front_toefp32', fixget(front_toe_Scale.get(), 0.05, 0.01, 2), 8,
-    b'rear_toefp32', fixget(rear_toe_Scale.get(), 0.20, 0.03, 2), 16,
+    b'front_camberfp32', getSliderOffset(front_camber_Scale.get(), -3.5, 0.1) , 11,
+    b'rear_camberfp32', getSliderOffset(rear_camber_Scale.get(), -2, 0.1), 9,
+    b'front_toefp32', getSliderOffset(front_toe_Scale.get(), 0.05, 0.01, 2), 8,
+    b'rear_toefp32', getSliderOffset(rear_toe_Scale.get(), 0.20, 0.03, 2), 16,
     b'front_suspensionfp32', front_suspension_Scale.get(), 15, 
     b'rear_suspensionfp32', rear_suspension_Scale.get(), 23, 
     b'front_suspension_heightfp32', front_suspension_height_Scale.get(), 22,
@@ -376,10 +392,10 @@ def packSetup():
     b'rear_antiroll_barfp32', rear_antiroll_bar_Scale.get(), 14,
     b'brake_pressurefp32', brake_pressure_Scale.get(), 10,
     b'brake_biasfp32', brake_bias_Scale.get(), 25,
-    b'front_right_tyre_pressurefp32' , fixget(front_right_tyre_pressure_Scale.get(), 21, 0.4), 24,
-    b'front_left_tyre_pressurefp32', fixget(front_left_tyre_pressure_Scale.get(), 21, 0.4), 24,
-    b'rear_right_tyre_pressurefp32', fixget(rear_right_tyre_pressure_Scale.get(), 19.5, 0.4), 23,
-    b'rear_left_tyre_pressurefp32', fixget(rear_left_tyre_pressure_Scale.get(), 19.5, 0.4), 7,
+    b'front_right_tyre_pressurefp32' , getSliderOffset(front_right_tyre_pressure_Scale.get(), 21, 0.4), 24,
+    b'front_left_tyre_pressurefp32', getSliderOffset(front_left_tyre_pressure_Scale.get(), 21, 0.4), 24,
+    b'rear_right_tyre_pressurefp32', getSliderOffset(rear_right_tyre_pressure_Scale.get(), 19.5, 0.4), 23,
+    b'rear_left_tyre_pressurefp32', getSliderOffset(rear_left_tyre_pressure_Scale.get(), 19.5, 0.4), 7,
     b'ballastfp32', ballast_Scale.get(), 9,
     b'fuel_loadfp32', fuel_load_Scale.get(), 17,
     b'ramp_differentialfp32', ramp_differential_Scale.get(), 17,
@@ -416,52 +432,85 @@ def Open_Setup():
     try:
         root.filename =  filedialog.askopenfilename(initialdir = F1SetupPath,title = "Select file",filetypes = (("bin files","*.bin"),("all files","*.*")))
         setupFile = open(root.filename, "rb")
-        setup = struct.unpack(setupStructFormat, setupFile.read())
+        setup = struct.unpack(setupStructPackingFormat, setupFile.read())
         statusmsg.set(" Opened (" + root.filename + ")")
         SetSliders(setup)
     except:
         messagebox.showerror("error","can't open")
 
-#select the file to open, unpack the file, update sliders, if autoUse is checked;  write to workshopfile
-def SelectTrack(country): 
-    setupWeatherType = str(weatherType[weatherBox.get()])
-    raceType = raceBox.get()
-    carType = carsBox.get()
-    setupType = weatherBox.get()
-    circuit = tracks[country]
-    root.filename = SetupDir + raceType +'/'+ carType +'/'+ setupType +'/'+ country  +".bin"
-    setupFile = open(root.filename, "rb")
-    setup = struct.unpack(setupStructFormat, setupFile.read())
+def loadSetupFile(path):
+    f = open(path, "rb")
+    setup = struct.unpack(setupStructPackingFormat, f.read())
+    f.close()
     SetSliders(setup)
     if autoUse.get() == True:   
         Use_Setup()
-    statusmsg.set(" %s | %s | (%s) %s [%s]" % (raceType, carType, country, circuit, setupWeatherType))
 
-#update the scales after switching setup type
-def chooseweatherType(*args):
-    idxs = lbox.curselection()
-    if len(idxs)==1:
-        idx = int(idxs[0])
-        country = countrynames[idx]
-        SelectTrack(country)
+def makeDir(path):
+    access_rights = 0o755
+    if os.path.isdir(path) == False:
+        try:
+            os.makedirs(path, access_rights)
+        except OSError:
+            print ("Creation of the directory %s failed" % path)
+
+def makeFile():
+    global currentTrack
+    race = raceBox.get()
+    car = carsBox.get()
+    weather = weatherBox.get()
+
+    path = SetupDir + race +'/'+ car +'/'+ weather +'/'
+    
+    makeDir(path)
+    if config['defaultsetups'] == "Preset":
+        presetFile = SetupDir + "Presets/Preset 3.bin" 
+    else:
+        presetFile = SetupDir + race +'/'+ config['defaultsetups'] +'/'+ weather +'/'+ currentTrack  +".bin"
+    loadSetupFile(presetFile)
+    Write_Setup(root.filename)
+
+#select the file to open, unpack the file, update sliders, if autoUse is checked;  write to workshopfile
+def SelectTrack(country): 
+    race = raceBox.get()
+    car = carsBox.get()
+    weather = weatherBox.get()
+    root.filename = SetupDir + race +'/'+ car +'/'+ weather +'/'+ country  +".bin"
+
+    if os.path.isfile(root.filename) == False:
+        makeFile()
+
+    loadSetupFile(root.filename)
+    statusmsg.set(" %s | %s | (%s) %s [%s]" % (race, car, country, tracks[country], weatherTypes[weather]))
+
+def highlightTrack(): #keep the trackname highlighted when you lose focus
+    global currentTrack
+    trackList = getList(tracks)
+    trackBox.selection_set(trackList.index(currentTrack))
 
 
-#create frames
 
-setupFrame = ttk.LabelFrame(
+# Create and grid the outer content frame
+c = ttk.Frame(root, padding=(5, 5, 12, 0))
+c.grid(column=0, row=0, sticky=(N,W,E,S))
+root.grid_columnconfigure(0, weight=1)
+root.grid_rowconfigure(0,weight=1)
+
+
+sliderFrame = ttk.LabelFrame(
     c, 
     text = "Setup",
     labelanchor='nw',
     padding = 5
     )
-setupFrame.grid(
+sliderFrame.grid(
     row=0,
-    rowspan=9,
+    rowspan=15,
     column=2,
     columnspan=5)
 
 #create widgets
-lbox = Listbox(
+trackBox = Listbox(
     c, 
     listvariable=cnames, 
     height=len(countrynames),
@@ -470,10 +519,10 @@ lbox = Listbox(
     highlightcolor="black",
     selectbackground="darkred",
     selectforeground="white")
-lbox.selection_clear(1, last=None)
+trackBox.selection_clear(1, last=None)
 raceBox = Combobox(c,
     justify="center", 
-    values=race, 
+    values=list(raceSettings), 
     state='disabled') #state= 'readonly' , 'disabled'
 carsBox = Combobox(c,
     justify="center", 
@@ -481,11 +530,20 @@ carsBox = Combobox(c,
     state='readonly') 
 weatherBox = Combobox(c,
     justify="center", 
-    values=weather_, 
+    values=list(weatherTypes), 
     state='readonly') 
+
+presetBox = Combobox(c,
+    justify="center", 
+    values=list(presetsetups.values()), 
+    state='readonly') 
+
+
+
 status = ttk.Label(c, 
     textvariable=statusmsg, 
     anchor=W)
+
 autoUseChangesBox = ttk.Checkbutton(c, 
     text='Auto Use Changes', 
     variable=autoUseChanges, 
@@ -509,6 +567,8 @@ autoUseTrackBox = ttk.Checkbutton(c,
 #    orient='vertical')
 
 #create Button widgets
+
+
 useButton = ttk.Button(
     c, 
     text="Use", 
@@ -543,24 +603,6 @@ tipBtn = ttk.Button(
     )
 
 
-# precision limiter
-#https://stackoverflow.com/questions/54186639/tkinter-control-ttk-scales-increment-as-with-tk-scale-and-a-tk-doublevar
-class Limiter(ttk.Scale):
-    """ ttk.Scale sublass that limits the precision of values. """
-
-    def __init__(self, *args, **kwargs):
-        self.precision = kwargs.pop('precision')  # Remove non-std kwarg.
-        self.chain = kwargs.pop('command', lambda *a: None)  # Save if present.
-        super(Limiter, self).__init__(*args, command=self._value_changed, **kwargs)
-
-    def _value_changed(self, newvalue):
-        newvalue = round(float(newvalue), self.precision)
-        if self.precision == 0:
-            self.winfo_toplevel().globalsetvar(self.cget('variable'), (int(newvalue)))
-        else:
-            self.winfo_toplevel().globalsetvar(self.cget('variable'), (newvalue))
-        self.chain(newvalue)  # Call user specified function.
-
 
 
 root.ri = 1
@@ -569,12 +611,12 @@ def MakeScale(from_ , to, text,  step=0 , offset=1, res=1):
     row = root.ri
     root.ri += 1
 
-    separator = ttk.Separator(setupFrame)
+    separator = ttk.Separator(sliderFrame)
     
-    #create space every 2
+    #create emptyspace every 2
     if (row % 3) == 0:
         ttk.Label(
-            setupFrame, 
+            sliderFrame, 
             anchor=W).grid(row=row)
         row += 1
         root.ri += 1
@@ -587,7 +629,7 @@ def MakeScale(from_ , to, text,  step=0 , offset=1, res=1):
     input_var = IntVar()
 
     scale = Limiter(
-        setupFrame, 
+        sliderFrame, 
         from_=from_, 
         to=to, 
         orient=HORIZONTAL,
@@ -596,11 +638,11 @@ def MakeScale(from_ , to, text,  step=0 , offset=1, res=1):
         precision=0 ##
         )
     scaleTxt = ttk.Label(
-        setupFrame, 
+        sliderFrame, 
         text=text, 
         anchor=W)
     scaleNr = ttk.Label(
-            setupFrame, 
+            sliderFrame, 
             textvariable = input_var, 
             anchor=E,
             width=5)
@@ -608,7 +650,7 @@ def MakeScale(from_ , to, text,  step=0 , offset=1, res=1):
     if step != 0:  
         def update_other_label(name1, name2, mode):
             value = input_var.get()
-            product = fixget(value, offset, step, res)            
+            product = getSliderOffset(value, offset, step, res)            
 
             input_var_mult.set(product)
         input_var.trace("w", update_other_label)
@@ -619,7 +661,7 @@ def MakeScale(from_ , to, text,  step=0 , offset=1, res=1):
     
     separator.grid(row=row)
     scaleTxt.grid(row=row, column=column, columnspan=1, rowspan=rowspan, sticky=sticky)
-    scale.grid(row=row, column=column+1, columnspan=2, rowspan=rowspan, sticky=sticky)#needs own line
+    scale.grid(row=row, column=column+1, columnspan=2, rowspan=rowspan, sticky=sticky)
     scaleNr.grid(row=row, column=column+4, columnspan=1, rowspan=rowspan, sticky=sticky)
     
     
@@ -653,7 +695,7 @@ fuel_load_Scale = MakeScale(5, 110, "Fuel load")
 #test = MakeScale(1, 11, "test",.4 , 21)
 # Grid all the widgets
 
-lbox.grid(
+trackBox.grid(
     column=0, row=0, 
     rowspan=3, 
     sticky=(N,S,E,W))
@@ -663,12 +705,16 @@ carsBox.grid(
     column=0, row=4, sticky=W)
 weatherBox.grid(
     column=0, row=5, sticky=W)
+
+presetBox.grid(
+    column=0, row=6, sticky=W)
+
 autoUseChangesBox.grid(
-    column=0, row=6, sticky=W, padx=10)
+    column=0, row=12, sticky=W, padx=10)
 autoSaveChangesBox.grid(
-    column=0, row=7, sticky=W, padx=10)
+    column=0, row=13, sticky=W, padx=10)
 autoUseTrackBox.grid(
-    column=0, row=8, sticky=W, padx=10)
+    column=0, row=14, sticky=W, padx=10)
 #separatorV.grid(
 #    column=1, row=0, 
 #    rowspan=33, 
@@ -692,12 +738,12 @@ status.grid(
     column=0, row=60, columnspan=6, sticky=(W,E))
 
 c.grid_columnconfigure(0, weight=1)
-c.grid_rowconfigure(5, weight=1)
+c.grid_rowconfigure(11, weight=1)
 
 
-# Colorize alternating lines of the listbox
-for i in range(0,len(countrynames),2):
-    lbox.itemconfigure(i, background='#576366',fg=fg)
+def tracksBackgroundColor():
+    for i in range(0,len(countrynames),2):
+        trackBox.itemconfigure(i, background='#576366',fg=fg)
 
 
 
@@ -707,14 +753,14 @@ for i in range(0,len(countrynames),2):
 # with the new population.  As well, clear the message about the
 # weather being sent, so it doesn't stick around after we start doing
 # other things.
-lboxCountry = ""
+currentTrack = ""
 def showTrackselection(*args):
-    global lboxCountry
-    idxs = lbox.curselection()
+    global currentTrack
+    idxs = trackBox.curselection()
     if len(idxs)==1:
         idx = int(idxs[0])
         country = countrynames[idx]
-        lboxCountry = country
+        currentTrack = country
         SelectTrack(country)
         
 def SliderEvent(*args):
@@ -728,15 +774,30 @@ def SliderEvent(*args):
     if autoSaveChanges == True:
         Save_Setup()
 
+
+
+
+def presetBoxSelected(*args):
+    
+    nr = str(presetBox.current() + 1) 
+    name = "Preset " + nr + ".bin"
+    path = SetupDir + "Presets/" + name
+    loadSetupFile(path)
+    
+    statusmsg.set(" Loaded (" + presetBox.get() + ")")
+    presetBox.set("Load Preset")
+    
+
+
 # Set event bindings for when the selection changes
-lbox.bind('<<ListboxSelect>>', showTrackselection)
+trackBox.bind('<<ListboxSelect>>', showTrackselection)
 raceBox.bind("<<ComboboxSelected>>", raceBoxSelected)
 carsBox.bind("<<ComboboxSelected>>", boxSelected)
 weatherBox.bind("<<ComboboxSelected>>", boxSelected)
+presetBox.bind("<<ComboboxSelected>>", presetBoxSelected)
 
 
 #slider event bindings
-#if config['autoUseChanges'] == True or config['autoSaveChanges'] == True:
 front_wing_Scale.bind("<ButtonRelease-1>", SliderEvent)
 rear_wing_Scale.bind("<ButtonRelease-1>", SliderEvent)
 on_throttle_Scale.bind("<ButtonRelease-1>", SliderEvent)
@@ -771,11 +832,10 @@ ramp_differential_Scale.bind("<ButtonRelease-1>", SliderEvent)
 # default weather to send, and clearing the messages.  Select the first
 # country in the list; because the <<ListboxSelect>> events are only
 # fired when users makes a change, we explicitly call showTrackselection.
-weather.set('Dry')
+#weather.set('Dry')
 statusmsg.set('')
-lbox.selection_set(0)
+trackBox.selection_set(0)
 
-#check if boxes are checked in config.json
 if config['autoUseChanges'] == True:
     autoUseChangesBox.invoke()
 if config['autoSaveChanges'] == True:
@@ -787,12 +847,14 @@ if config['autoUseButton'] == True:
 raceBox.current(0)
 carsBox.current(0) 
 weatherBox.current(0)
+presetBox.set("Load Preset")
 carsBox['values']=raceSettings[raceBox.get()] 
 
 
 
 
 if __name__ == "__main__":
+    tracksBackgroundColor()
     #create sliders
     gameModeScaleSettings()
 
