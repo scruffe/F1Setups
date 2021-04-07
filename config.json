@@ -7,8 +7,8 @@
     "auto_use_track": true,
     "theme": "awdark",
     "default_setups": "All Cars",
-    "race_box": "F2 2020",
-    "cars_box": "Carlin",
+    "race_box": "F1 2020",
+    "cars_box": "All Cars",
     "weather_box": "Dry",
-    "game_mode_box": "Multiplayer"
+    "game_mode_box": "Time Trial"
 }

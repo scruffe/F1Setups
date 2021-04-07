@@ -43,7 +43,7 @@ class Limiter(ttk.Scale):
             value = self.tk.call(self._w, 'get', x, y)
 
             m = round(value * self.step, self.res)
-            return round(self.offset + m, self.res)
+            return round(self.offset + m - self.step, self.res)
 
         return self.tk.call(self._w, 'get', x, y)
 
