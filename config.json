@@ -1,13 +1,14 @@
 {
     "steam_path": "C:\\Program Files (x86)\\Steam",
     "workshop_dir": "D:\\SteamLibrary/steamapps/workshop/content/1080110",
+    "sort_tracks": false,
     "auto_use_changes": true,
     "auto_save_changes": false,
     "auto_use_track": true,
     "theme": "awdark",
     "default_setups": "All Cars",
     "race_box": "F2 2020",
-    "cars_box": "All Cars",
+    "cars_box": "Carlin",
     "weather_box": "Dry",
     "game_mode_box": "Multiplayer"
 }
