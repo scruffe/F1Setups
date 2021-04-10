@@ -77,9 +77,9 @@ class Json:
 
 class SliderCounter:  # reads corresponding slider value in setup file and sets a slider to that value
 
-    def __init__(self, setup):
+    def __init__(self, unpacked_setup):
+        self.setup = unpacked_setup
         self.x = 41
-        self.setup = setup
 
     def set_slider_value(self, scale):
         self.x += 3
@@ -93,7 +93,7 @@ class SliderCounter:  # reads corresponding slider value in setup file and sets 
     def set_slider_with_offset(self, scale):
         value = self.setup[self.x]
         p = round(value - scale.offset, scale.res)
-        product = round(p / scale.step, scale.res)
+        product = round(p / scale.step, scale.res) + 1
         scale.set(product)
 
 
@@ -422,114 +422,114 @@ class Widgets:
         self.setup = setup
 
         self.sliderFrame = ttk.LabelFrame(
-                                    self.c,
-                                    text="Setup",
-                                    labelanchor='nw',
-                                    padding=5)
+            self.c,
+            text="Setup",
+            labelanchor='nw',
+            padding=5)
         self.track_box = Listbox(
-                                    self.c,
-                                    listvariable=self.tracks_sorted,
-                                    height=len(track.track_sorted_list),
-                                    bg=self.bg,
-                                    fg=self.fg,
-                                    highlightcolor="black",
-                                    selectbackground="darkred",
-                                    selectforeground="white")
+            self.c,
+            listvariable=self.tracks_sorted,
+            height=len(track.track_sorted_list),
+            bg=self.bg,
+            fg=self.fg,
+            highlightcolor="black",
+            selectbackground="darkred",
+            selectforeground="white")
         self.race_box = Combobox(
-                                    self.c,
-                                    justify="center",
-                                    values=list(self.raceSettings),
-                                    state='readonly')  # state= 'readonly' , 'disabled'
+            self.c,
+            justify="center",
+            values=list(self.raceSettings),
+            state='readonly')  # state= 'readonly' , 'disabled'
         self.cars_box = Combobox(
-                                    self.c,
-                                    justify="center",
-                                    values=self.cars,
-                                    state='readonly')
+            self.c,
+            justify="center",
+            values=self.cars,
+            state='readonly')
         self.weather_box = Combobox(
-                                    self.c,
-                                    justify="center",
-                                    values=list(self.weatherTypes),
-                                    state='readonly')
+            self.c,
+            justify="center",
+            values=list(self.weatherTypes),
+            state='readonly')
 
         self.preset_box = Combobox(
-                                    self.c,
-                                    justify="center",
-                                    values=list(self.preset_setups.values()),
-                                    state='readonly')
+            self.c,
+            justify="center",
+            values=list(self.preset_setups.values()),
+            state='readonly')
         self.game_mode_box = Combobox(
-                                    self.c,
-                                    justify="center",
-                                    values=list(self.game_modes),
-                                    state='readonly')
+            self.c,
+            justify="center",
+            values=list(self.game_modes),
+            state='readonly')
 
         self.status_bar = ttk.Label(
-                                    self.c,
-                                    textvariable=self.status_message,
-                                    anchor=W)
+            self.c,
+            textvariable=self.status_message,
+            anchor=W)
 
         self.sort_tracks_box = ttk.Checkbutton(
-                                    self.c,
-                                    text='Order Tracks',
-                                    variable=self.sort_tracks,
-                                    onvalue=True,
-                                    offvalue=False,
-                                    command=lambda: self.toggle_track_list())
+            self.c,
+            text='Order Tracks',
+            variable=self.sort_tracks,
+            onvalue=True,
+            offvalue=False,
+            command=lambda: self.toggle_track_list())
 
         self.autoUseChangesBox = ttk.Checkbutton(
-                                    self.c,
-                                    text='Auto Use Changes',
-                                    variable=self.auto_use_changes,
-                                    onvalue=True,
-                                    offvalue=False,
-                                    command=lambda: settings.set_auto_use_changes(self.auto_use_changes.get()))
+            self.c,
+            text='Auto Use Changes',
+            variable=self.auto_use_changes,
+            onvalue=True,
+            offvalue=False,
+            command=lambda: settings.set_auto_use_changes(self.auto_use_changes.get()))
 
         self.autoSaveChangesBox = ttk.Checkbutton(
-                                    self.c,
-                                    text='Auto Save Changes',
-                                    variable=self.auto_save_changes,
-                                    onvalue=True,
-                                    offvalue=False,
-                                    command=lambda: settings.set_auto_save_changes(self.auto_save_changes.get()))
+            self.c,
+            text='Auto Save Changes',
+            variable=self.auto_save_changes,
+            onvalue=True,
+            offvalue=False,
+            command=lambda: settings.set_auto_save_changes(self.auto_save_changes.get()))
 
         self.autoUseTrackBox = ttk.Checkbutton(
-                                    self.c,
-                                    text='Auto Use track',
-                                    variable=self.auto_use_track,
-                                    onvalue=True,
-                                    offvalue=False,
-                                    command=lambda: settings.set_auto_use_track(self.auto_use_track.get()))
+            self.c,
+            text='Auto Use track',
+            variable=self.auto_use_track,
+            onvalue=True,
+            offvalue=False,
+            command=lambda: settings.set_auto_use_track(self.auto_use_track.get()))
 
         self.useButton = ttk.Button(
-                                    self.c,
-                                    text="Use",
-                                    command=self.setup.use_setup
+            self.c,
+            text="Use",
+            command=self.setup.use_setup
         )
         self.useSaveButton = ttk.Button(
-                                    self.c,
-                                    text="Save & Use",
-                                    command=self.setup.use_save_setup
+            self.c,
+            text="Save & Use",
+            command=self.setup.use_save_setup
         )
         self.saveButton = ttk.Button(
-                                    self.c,
-                                    text="Save",
-                                    command=self.setup.save_setup
+            self.c,
+            text="Save",
+            command=self.setup.save_setup
         )
         self.saveAsButton = ttk.Button(
-                                    self.c,
-                                    text="Save As",
-                                    command=self.setup.save_as_setup
+            self.c,
+            text="Save As",
+            command=self.setup.save_as_setup
         )
         self.openButton = ttk.Button(
-                                    self.c,
-                                    text="Open",
-                                    command=self.setup.open_setup
+            self.c,
+            text="Open",
+            command=self.setup.open_setup
         )
 
         # create tipURL widget
         self.tipBtn = ttk.Button(
-                                    self.c,
-                                    text="Tip Scruffe",
-                                    command=lambda: open_url("https://paypal.me/valar")
+            self.c,
+            text="Tip Scruffe",
+            command=lambda: open_url("https://paypal.me/valar")
         )
 
         scales = MakeScale(self.sliderFrame)
@@ -869,63 +869,161 @@ class Events:
 
 class Setup:
     def __init__(self):
+        # self.max_length_save_name = 128
+
+        self.header = 'F1CS'
+        self.versions = 'versionsi32'
+        self.save_name_length = 'save_names128'
+        self.save_name = 'All setups | scruffe'
+        self.team_id = 'team_idui16'
+        self.track_id = 'track_idui08'
+        self.game_mode_id = 'game_mode_idsi32'
+        self.weather_bool = 'weather_typebool'
+        self.timestamp = 'timestampui64'
+        self.game_setup_mode = 'game_setup_modeui08'
+        self.fw = 'front_wingfp32'
+        self.rw = 'rear_wingfp32'
+        self.ot = 'on_throttlefp32'
+        self.oft = 'off_throttlefp32'
+        self.fc = 'front_camberfp32'
+        self.rc = 'rear_camberfp32'
+        self.ft = 'front_toefp32'
+        self.rt = 'rear_toefp32'
+        self.fs = 'front_suspensionfp32'
+        self.rs = 'rear_suspensionfp32'
+        self.fsh = 'front_suspension_heightfp32'
+        self.rsh = 'rear_suspension_heightfp32'
+        self.fab = 'front_antiroll_barfp32'
+        self.rab = 'rear_antiroll_barfp32'
+        self.bp = 'brake_pressurefp32'
+        self.bb = 'brake_biasfp32'
+        self.frtp = 'front_right_tyre_pressurefp32'
+        self.fltp = 'front_left_tyre_pressurefp32'
+        self.rrtp = 'rear_right_tyre_pressurefp32'
+        self.rltp = 'rear_left_tyre_pressurefp32'
+        self.b = 'ballastfp32'
+        self.fl = 'fuel_loadfp32'
+        self.rd = 'ramp_differentialfp32'
+        self.footer = 'published_file_idui64'
+
+        self.size = len(self.save_name)  # default size 20
+
+        self.setupStructPackingFormat = self.get_packing_format()
+
+        """
         self.setupStructPackingFormat = \
             '<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16s5b 16s2b 13s9b 19s2b ' \
             '14sfb 13sfb 15sfb 16sfb 16sfb 15sfb 13sfb 12sfb 20sfb 19sfb ' \
             '27sfb 26sfb 22sfb 21sfb 18sfb 14sfb 29sfb 28sfb 28sfb 27sfb ' \
-            '11sfb 13sfb 21sfb 21s8B'
+            '11sfb 13sfb 21sfb 21s8B'"""
 
-    def pack_setup(self):
+    def get_packing_format(self):
         # ui08  |Unsigned 8-bit integer
         # i08   |Signed 8-bit integer
-        # fp32   |Floating point (32-bit)
+        # fp32  |Floating point (32-bit)
 
+        # self.size = len(self.save_name)
+        f = \
+            f'<' \
+            f'{len(self.header)}s5l1b' \
+            f'{len(self.versions)}sfb' \
+            f'{len(self.save_name_length)}sb' \
+            f'{self.size}sb' \
+            f'{len(self.team_id)}s3b' \
+            f'{len(self.track_id)}s2b' \
+            f'{len(self.game_mode_id)}s5b' \
+            f'{len(self.weather_bool)}s2b' \
+            f'{len(self.timestamp)}s9b' \
+            f'{len(self.game_setup_mode)}s2b' \
+            f'{len(self.fw)}sfb' \
+            f'{len(self.rw)}sfb' \
+            f'{len(self.ot)}sfb' \
+            f'{len(self.oft)}sfb' \
+            f'{len(self.fc)}sfb' \
+            f'{len(self.rc)}sfb' \
+            f'{len(self.ft)}sfb' \
+            f'{len(self.rt)}sfb' \
+            f'{len(self.fs)}sfb' \
+            f'{len(self.rs)}sfb' \
+            f'{len(self.fsh)}sfb' \
+            f'{len(self.rsh)}sfb ' \
+            f'{len(self.fab)}sfb ' \
+            f'{len(self.rab)}sfb ' \
+            f'{len(self.bp)}sfb ' \
+            f'{len(self.bb)}sfb ' \
+            f'{len(self.frtp)}sfb ' \
+            f'{len(self.fltp)}sfb ' \
+            f'{len(self.rrtp)}sfb ' \
+            f'{len(self.rltp)}sfb ' \
+            f'{len(self.b)}sfb ' \
+            f'{len(self.fl)}sfb ' \
+            f'{len(self.rd)}sfb ' \
+            f'{len(self.footer)}s8B'
+        return f
+
+    def set_file_size(self, filename):
+        min_size = 748
+        file_size = os.path.getsize(filename)
+        name_size = file_size - min_size
+        self.size = name_size
+
+    def pack_setup(self):
+
+        # syntax:  b'string', values (based on packing format), check value
         # all vars have a check value at the end,
-        # i have no idea what they do.
         # Remove them and the game crashes. ¯\_(ツ)_/¯
+        def b(s):
+            return bytes(s, 'utf-8')
+
+        self.save_name = 'All setups | scruffe'
+        self.size = len(self.save_name)
+
+        self.setupStructPackingFormat = self.get_packing_format()
         packed_setup = struct.pack(
             self.setupStructPackingFormat,
-            b'F1CS', 0, 1, 0, 32, 0, 7,
+            b(self.header), 0, 1, 0, 32, 0, 7,
             # \x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x07
-            b'versionsi32', 0, 9,  # \x00\x00\x00\x00\t
-            b'save_names128', 20,  # \x14      probably string length of next name
-            b'All setups | scruffe', 7,  # \x07
-            b'team_idui16', widgets.get_team_id(), 0, 8,  # \x00\x00\x08
-            b'track_idui08', track.get_track_id(), 12,  # \x03\x0c
-            b'game_mode_idsi32', widgets.get_game_mode_id(), 0, 0, 0, 12,
+            b(self.versions), 0, 9,  # \x00\x00\x00\x00\t
+            b(self.save_name_length), self.size,  # \x14      probably string length of next name
+            b(self.save_name), 7,  # \x07
+            b(self.team_id), widgets.get_team_id(), 0, 8,  # \x00\x00\x08
+            b(self.track_id), track.get_track_id(), 12,  # \x03\x0c
+            b(self.game_mode_id), widgets.get_game_mode_id(), 0, 0, 0, 12,
             # \x05\x00\x00\x00 \x0c
-            b'weather_typebool', widgets.get_weather_id(), 9,  # \x01\t
-            b'timestampui64', 19, 14, 5, 95, 0, 0, 0, 0, 15,  # \x13\x0e\x05_\x00\x00\x00\x00\x0f
-            b'game_setup_modeui08', 0, 10,  # \x00\n
-            b'front_wingfp32', widgets.front_wing_Scale.get(), 9,
-            b'rear_wingfp32', widgets.rear_wing_Scale.get(), 11,
-            b'on_throttlefp32', widgets.on_throttle_Scale.get(), 12,
-            b'off_throttlefp32', widgets.off_throttle_Scale.get(), 12,
-            b'front_camberfp32', widgets.front_camber_Scale.get(), 11,
-            b'rear_camberfp32', widgets.rear_camber_Scale.get(), 9,
-            b'front_toefp32', widgets.front_toe_Scale.get(), 8,
-            b'rear_toefp32', widgets.rear_toe_Scale.get(), 16,
-            b'front_suspensionfp32', widgets.front_suspension_Scale.get(), 15,
-            b'rear_suspensionfp32', widgets.rear_suspension_Scale.get(), 23,
-            b'front_suspension_heightfp32', widgets.front_suspension_height_Scale.get(), 22,
-            b'rear_suspension_heightfp32', widgets.rear_suspension_height_Scale.get(), 18,
-            b'front_antiroll_barfp32', widgets.front_antiroll_bar_Scale.get(), 17,
-            b'rear_antiroll_barfp32', widgets.rear_antiroll_bar_Scale.get(), 14,
-            b'brake_pressurefp32', widgets.brake_pressure_Scale.get(), 10,
-            b'brake_biasfp32', widgets.brake_bias_Scale.get(), 25,
-            b'front_right_tyre_pressurefp32', widgets.front_right_tyre_pressure_Scale.get(), 24,
-            b'front_left_tyre_pressurefp32', widgets.front_left_tyre_pressure_Scale.get(), 24,
-            b'rear_right_tyre_pressurefp32', widgets.rear_right_tyre_pressure_Scale.get(), 23,
-            b'rear_left_tyre_pressurefp32', widgets.rear_left_tyre_pressure_Scale.get(), 7,
-            b'ballastfp32', widgets.ballast_Scale.get(), 9,
-            b'fuel_loadfp32', widgets.fuel_load_Scale.get(), 17,
-            b'ramp_differentialfp32', widgets.ramp_differential_Scale.get(), 17,
-            b'published_file_idui64', 31, 174, 162, 128, 0, 0, 0, 0
+            b(self.weather_bool), widgets.get_weather_id(), 9,  # \x01\t
+            b(self.timestamp), 19, 14, 5, 95, 0, 0, 0, 0, 15,  # \x13\x0e\x05_\x00\x00\x00\x00\x0f
+            b(self.game_setup_mode), 0, 10,  # \x00\n
+            b(self.fw), widgets.front_wing_Scale.get(), 9,
+            b(self.rw), widgets.rear_wing_Scale.get(), 11,
+            b(self.ot), widgets.on_throttle_Scale.get(), 12,
+            b(self.oft), widgets.off_throttle_Scale.get(), 12,
+            b(self.fc), widgets.front_camber_Scale.get(), 11,
+            b(self.rc), widgets.rear_camber_Scale.get(), 9,
+            b(self.ft), widgets.front_toe_Scale.get(), 8,
+            b(self.rt), widgets.rear_toe_Scale.get(), 16,
+            b(self.fs), widgets.front_suspension_Scale.get(), 15,
+            b(self.rs), widgets.rear_suspension_Scale.get(), 23,
+            b(self.fsh), widgets.front_suspension_height_Scale.get(), 22,
+            b(self.rsh), widgets.rear_suspension_height_Scale.get(), 18,
+            b(self.fab), widgets.front_antiroll_bar_Scale.get(), 17,
+            b(self.rab), widgets.rear_antiroll_bar_Scale.get(), 14,
+            b(self.bp), widgets.brake_pressure_Scale.get(), 10,
+            b(self.bb), widgets.brake_bias_Scale.get(), 25,
+            b(self.frtp), widgets.front_right_tyre_pressure_Scale.get(), 24,
+            b(self.fltp), widgets.front_left_tyre_pressure_Scale.get(), 24,
+            b(self.rrtp), widgets.rear_right_tyre_pressure_Scale.get(), 23,
+            b(self.rltp), widgets.rear_left_tyre_pressure_Scale.get(), 7,
+            b(self.b), widgets.ballast_Scale.get(), 9,
+            b(self.fl), widgets.fuel_load_Scale.get(), 17,
+            b(self.rd), widgets.ramp_differential_Scale.get(), 17,
+            b(self.footer), 31, 174, 162, 128, 0, 0, 0, 0
             # b'published_file_idui64\x1f\xae\xa2\x80\x00\x00\x00\x00'
         )
+
         return packed_setup
 
     def write_setup(self, filename):
+        self.set_file_size(filename)
         packed_setup = self.pack_setup()
         with open(filename, 'wb') as file:
             file.write(packed_setup)
@@ -939,7 +1037,7 @@ class Setup:
 
     def save_setup(self):
         self.write_setup(root.filename)
-        widgets.status_message.set("Saved as: " + root.filename)
+        widgets.status_message.set("Saved")
 
     def use_save_setup(self):
         self.use_setup()
@@ -947,26 +1045,35 @@ class Setup:
 
     def save_as_setup(self):
         asked_filename = filedialog.asksaveasfilename(initialdir=INSTALL_PATH, title="Select file",
+                                                      defaultextension=".bin",
                                                       filetypes=(("bin files", "*.bin"), ("all files", "*.*")))
         self.write_setup(asked_filename)
         widgets.status_message.set("Saved: " + asked_filename)
 
     def unpack_setup(self, path):
         try:
+            self.set_file_size(path)
+            self.setupStructPackingFormat = self.get_packing_format()
             setup_file = open(path, "rb")
             unpacked_setup = struct.unpack(self.setupStructPackingFormat, setup_file.read())
             setup_file.close()
             return unpacked_setup
-        except OSError:
+        except struct.error:
             messagebox.showerror("error", "can't open")
 
     def open_setup(self):
-        unpacked_setup = self.unpack_setup(root.filename)
+        root.filename = filedialog.askopenfilename(initialdir=INSTALL_PATH, title="Select setup file",
+                                                   filetypes=(("bin files", "*.bin"), ("all files", "*.*")))
+        self.load_setup_file(root.filename)
         widgets.status_message.set(" Opened (" + root.filename + ")")
-        widgets.set_sliders(unpacked_setup)
 
     def load_setup_file(self, path):
         unpacked_setup = self.unpack_setup(path)
+
+        name = unpacked_setup[12].decode("utf-8")
+        print(name)
+
+
         widgets.set_sliders(unpacked_setup)
         if config.auto_use_track:
             self.use_setup()
