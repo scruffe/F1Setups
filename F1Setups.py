@@ -781,7 +781,7 @@ class Widgets:
 
 
 class Events:
-    def __init__(self, widgets, settings):
+    def __init__(self, settings):
         self.widgets = widgets
         self.settings = settings
         self.setup = setup
@@ -800,13 +800,13 @@ class Events:
         self.bind_events()
 
     def bind_events(self):
-        self.track_box.bind('<<ListboxSelect>>', self.show_track_selection)
+        self.track_box.bind('<ButtonRelease>', self.show_track_selection)
         self.race_box.bind("<<ComboboxSelected>>", self.race_box_event)
         self.cars_box.bind("<<ComboboxSelected>>", self.box_event)
         self.weather_box.bind("<<ComboboxSelected>>", self.box_event)
         self.preset_box.bind("<<ComboboxSelected>>", self.preset_box_event)
         self.game_mode_box.bind("<<ComboboxSelected>>", self.box_event)
-        self.sort_tracks_box.bind("<<")
+        #self.sort_tracks_box.bind("<<")
 
         slider_event = self.slider_event
         for slider in widgets.sliders:
@@ -828,8 +828,8 @@ class Events:
         self.settings.dump("weather_box", self.weather_box.get())
         self.settings.dump("game_mode_box", self.game_mode_box.get())
         self.settings.dump("cars_box", self.cars_box.get())
-        track_list = track.track_sorted_list
-        self.track_box.selection_set(track_list.index(track.get_current_track()))
+        self.keep_track_selection_highlighted()
+        self.show_track_selection()
 
     def slider_event(self, *args):
         auto_use = self.settings.auto_use_changes
@@ -842,12 +842,17 @@ class Events:
             self.setup.save_setup()
 
     def preset_box_event(self, *args):
+        self.keep_track_selection_highlighted()
         nr = str(self.preset_box.current() + 1)
         path = SetupDir + "Presets/Preset " + nr + ".bin"
         self.setup.load_setup_file(path)
 
         widgets.status_message.set(" Loaded (" + self.preset_box.get() + ")")
         widgets.preset_box.set("Load Preset")
+
+    def keep_track_selection_highlighted(self):
+        track_list = track.track_sorted_list
+        self.track_box.selection_set(track_list.index(track.get_current_track()))
 
     # select the file to open, unpack the file, update sliders, if autoUse is checked;  write to workshopfile
     def select_track(self, country):
@@ -910,13 +915,6 @@ class Setup:
 
         self.setupStructPackingFormat = self.get_packing_format()
 
-        """
-        self.setupStructPackingFormat = \
-            '<4s5l1b 11sfb 13sb 20sb 11s3b 12s2b 16s5b 16s2b 13s9b 19s2b ' \
-            '14sfb 13sfb 15sfb 16sfb 16sfb 15sfb 13sfb 12sfb 20sfb 19sfb ' \
-            '27sfb 26sfb 22sfb 21sfb 18sfb 14sfb 29sfb 28sfb 28sfb 27sfb ' \
-            '11sfb 13sfb 21sfb 21s8B'"""
-
     def get_packing_format(self):
         # ui08  |Unsigned 8-bit integer
         # i08   |Signed 8-bit integer
@@ -962,10 +960,14 @@ class Setup:
         return f
 
     def set_file_size(self, filename):
-        min_size = 748
-        file_size = os.path.getsize(filename)
-        name_size = file_size - min_size
-        self.size = name_size
+        # all information in the setup is static except for the length of the save name
+        if os.path.isfile(filename):
+            min_size = 748
+            file_size = os.path.getsize(filename)
+            name_size = file_size - min_size
+            self.size = name_size
+        else:
+            self.size = 20  # preset save_name size
 
     def pack_setup(self):
 
@@ -1069,11 +1071,7 @@ class Setup:
 
     def load_setup_file(self, path):
         unpacked_setup = self.unpack_setup(path)
-
-        name = unpacked_setup[12].decode("utf-8")
-        print(name)
-
-
+        #name = unpacked_setup[12].decode("utf-8")
         widgets.set_sliders(unpacked_setup)
         if config.auto_use_track:
             self.use_setup()
@@ -1137,7 +1135,7 @@ if __name__ == "__main__":
     config.use_theme()
 
     widgets.grid()
-    event = Events(widgets, config)
+    event = Events(config)
     widgets.set_starting_values()
     widgets.tracks_background_color()
     widgets.toggle_race_sliders()
