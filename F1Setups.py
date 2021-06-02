@@ -1,15 +1,24 @@
 # from tkinter import *
-import json
 import os
 import pathlib
-import re
 import struct
 import webbrowser
-import winreg
-from tkinter import Tk, HORIZONTAL, messagebox, filedialog, DoubleVar, \
+from tkinter import Tk, ttk, HORIZONTAL, messagebox, filedialog, DoubleVar, \
     IntVar, StringVar, BooleanVar, N, W, E, S, Listbox, END
-from tkinter import ttk
 from tkinter.ttk import Combobox
+
+from jsondata import Json
+from config import Config
+from tracks import Tracks
+
+from carsetup import CarSetup
+
+import community
+import grid_widgets
+
+from sql_db import SqlDB
+from sql import *
+import testing
 
 INSTALL_PATH = pathlib.Path(__file__).parent.absolute()
 root = Tk()
@@ -56,25 +65,6 @@ class Limiter(ttk.Scale):
         self.chain(new_value)  # Call user specified function.
 
 
-class Json:
-    def __init__(self):
-        self.data = self.load_json_data()
-        self.tracks_sorted = self.data["tracks_sorted"]
-        self.tracks_season = self.data["tracks_season"]
-        self.tracks_id = self.data["tracks_id"]
-        self.cars = self.data["cars"]
-        self.weather = self.data["weather"]
-        self.game_modes = self.data["game_modes"]
-        self.preset_setups = self.data["preset_setups"]
-
-    @staticmethod
-    def load_json_data():
-        with open('data.json', encoding='utf-8') as json_file:
-            jf = json.load(json_file)
-        json_file.close()
-        return jf
-
-
 class SliderCounter:  # reads corresponding slider value in setup file and sets a slider to that value
 
     def __init__(self, unpacked_setup):
@@ -95,163 +85,6 @@ class SliderCounter:  # reads corresponding slider value in setup file and sets 
         p = round(value - scale.offset, scale.res)
         product = round(p / scale.step, scale.res) + 1
         scale.set(product)
-
-
-class Config:
-    def __init__(self):
-        self.config = self.load()
-
-        self.steam_path = self.config['steam_path']
-        self.workshop_dir = self.config['workshop_dir']
-        self.sort_tracks = self.config['sort_tracks']
-        self.auto_use_changes = self.config['auto_use_changes']
-        self.auto_save_changes = self.config['auto_save_changes']
-        self.auto_use_track = self.config['auto_use_track']
-        self.theme = self.config['theme']
-        self.default_setups = self.config['default_setups']
-        self.race = self.config['race_box']
-        self.cars = self.config['cars_box']
-        self.weather = self.config['weather_box']
-        self.game_mode = self.config['game_mode_box']
-
-        self.f1_2020_steamID = "1080110"
-        self.scruffe_f1_workshop_id = "2403338074"
-        self.scruffe_f2_workshop_id = "2404403390"
-        self.scruffe_classic_workshop_id = "2404433709"
-
-    @staticmethod
-    def load():
-        with open('config.json') as f:
-            config_f = json.load(f)
-        f.close()
-        return config_f
-
-    def dump(self, key, value):
-        self.config[key] = value
-        with open("config.json", "w") as f:
-            json.dump(self.config, f, indent=4)
-        f.close()
-
-    @staticmethod
-    def subscribe(workshop_file, workshop_race_id):
-        if not os.path.isfile(workshop_file):
-            url = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshop_race_id
-            messagebox.showerror(
-                "error",
-                "Not Subscribed to steam workshop, Subscribe to: " + url)
-            open_url(url)
-
-    def use_theme(self):
-        root.tk.call('lappend', 'auto_path', str(INSTALL_PATH))
-        root.tk.call('package', 'require', self.theme)
-        # s.theme_names('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-        ttk.Style().theme_use(self.theme)
-
-    def set_steam_path(self):
-        try:
-            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                                  r"SOFTWARE\WOW6432Node\Valve\Steam")  # <PyHKEY:0x0000000000000094>
-            steam_path = winreg.QueryValueEx(hkey, "InstallPath")
-            winreg.CloseKey(hkey)
-            self.steam_path = steam_path[0]
-        except OSError:
-            messagebox.showerror("error", "Can't find steam Install directory, select steam install dir")
-            self.steam_path = filedialog.askdirectory()
-        self.dump('steam_path', self.steam_path)
-
-    def get_steam_path(self):
-        if not os.path.isdir(self.steam_path):
-            self.set_steam_path()
-        return self.steam_path
-
-    def set_workshop_dir(self):
-
-        steam_path = self.get_steam_path()
-        library_folders = steam_path + r"\steamapps\libraryfolders.vdf"
-        with open(library_folders) as f:
-            libraries = [steam_path]
-            lf = f.read()
-            libraries.extend([fn.replace("\\\\", "\\") for fn in
-                              re.findall(r'^\s*"\d*"\s*"([^"]*)"', lf, re.MULTILINE)])
-            for library in libraries:
-                appmanifest = library + r"\steamapps\appmanifest_" + self.f1_2020_steamID + ".ACF"
-                if os.path.isfile(appmanifest):
-                    with open(appmanifest) as ff:
-                        ff.read()
-                        self.workshop_dir = library + "/steamapps/workshop/content/" + self.f1_2020_steamID
-                        self.dump('workshop_dir', self.workshop_dir)
-                    ff.close()
-        f.close()
-
-    def get_workshop_dir(self, race):
-        if not os.path.isdir(self.workshop_dir):
-            self.set_workshop_dir()
-        workshop_race_id = self.get_race_id(race)
-        workshop_file = self.workshop_dir + "/" + workshop_race_id + "/ugcitemcontent.bin"
-        self.subscribe(workshop_file, workshop_race_id)
-        return workshop_file
-
-    def get_race_id(self, race):
-        race_id = self.scruffe_f1_workshop_id
-        if race == "classic":
-            race_id = self.scruffe_classic_workshop_id
-        elif race == "F2 2019" or race == "F2 2020":
-            race_id = self.scruffe_f2_workshop_id
-        return race_id
-
-    def set_sort_tracks(self, value):
-        self.sort_tracks = value
-        self.dump('sort_tracks', value)
-
-    def set_auto_use_changes(self, value):
-        self.auto_use_changes = value
-        self.dump('auto_use_changes', value)
-
-    def set_auto_save_changes(self, value):
-        self.auto_save_changes = value
-        self.dump('auto_save_changes', value)
-
-    def set_auto_use_track(self, value):
-        self.auto_use_track = value
-        self.dump('auto_use_track', value)
-
-
-class Track:
-    def __init__(self):
-        self.current_track = "Australia"
-        self.tracks_sorted = json_data.tracks_sorted
-        self.tracks_season = json_data.tracks_season
-        self.tracks_id = json_data.tracks_id
-
-        self.tracks = self.make_list()
-
-        self.track_sorted_list = list(self.tracks)
-
-    def make_list(self):
-        if config.sort_tracks:
-            self.tracks = self.tracks_sorted
-        else:
-            self.tracks = self.tracks_season
-        return self.tracks
-
-    def set_current_track(self):
-        currently_selected_track = widgets.track_box.curselection()
-        if len(currently_selected_track) == 1:
-            idx = int(currently_selected_track[0])
-            self.current_track = track.track_sorted_list[idx]
-
-    def get_current_track(self):
-        return self.current_track
-
-    def get_track_id(self):
-        return get_list(self.tracks_id).index(self.current_track)
-
-    def toggle_track_sort(self, sort):
-        if sort:
-            self.tracks = self.tracks_sorted
-        else:
-            self.tracks = self.tracks_season
-        self.track_sorted_list = list(self.tracks)
 
 
 class MakeScale:
@@ -369,36 +202,10 @@ class MakeScale:
         return scale
 
 
-class GridWidgets:
-    def __init__(self, startrow=0, increment_horizontal=False, sticky=(E, W), padx=0):
-        self.row = startrow
-        self.column = 0
-        self.increment_horizontal = increment_horizontal
-        self.sticky = sticky
-        self.padx = padx
-
-    def grid_box(self, box, rowspan=1, columnspan=1):
-        box.grid(
-            column=self.column,
-            row=self.row,
-            rowspan=rowspan,
-            columnspan=columnspan,
-            sticky=self.sticky,
-            padx=self.padx
-        )
-        if self.increment_horizontal:
-            self.column += columnspan
-        else:
-            self.row += rowspan
-
-    def get_row(self):
-        return self.row
-
-
 class Widgets:
     def __init__(self, settings):
         self.settings = settings
-
+        self.update = Update()
         self.preset_setups = json_data.preset_setups
         self.game_modes = json_data.game_modes
         self.weatherTypes = json_data.weather
@@ -418,7 +225,7 @@ class Widgets:
         self.auto_use_track = BooleanVar()
         self.auto_save_changes = BooleanVar()
         self.auto_use_changes = BooleanVar()
-        self.tracks_sorted = StringVar(value=track.track_sorted_list)
+        self.tracks_sorted = StringVar(value=tracks.track_sorted_list)
         self.setup = setup
 
         self.sliderFrame = ttk.LabelFrame(
@@ -429,7 +236,7 @@ class Widgets:
         self.track_box = Listbox(
             self.c,
             listvariable=self.tracks_sorted,
-            height=len(track.track_sorted_list),
+            height=len(tracks.track_sorted_list),
             bg=self.bg,
             fg=self.fg,
             highlightcolor="black",
@@ -471,33 +278,37 @@ class Widgets:
             self.c,
             text='Order Tracks',
             variable=self.sort_tracks,
-            onvalue=True,
-            offvalue=False,
-            command=lambda: self.toggle_track_list())
+            command=lambda: self.toggle_track_list(self.sort_tracks.get()))
 
-        self.autoUseChangesBox = ttk.Checkbutton(
+        self.auto_use_changes_box = ttk.Checkbutton(
             self.c,
             text='Auto Use Changes',
             variable=self.auto_use_changes,
-            onvalue=True,
-            offvalue=False,
-            command=lambda: settings.set_auto_use_changes(self.auto_use_changes.get()))
+            command=lambda: self.update_auto_use(self.auto_use_changes.get()))
 
-        self.autoSaveChangesBox = ttk.Checkbutton(
+        self.auto_save_changes_box = ttk.Checkbutton(
             self.c,
             text='Auto Save Changes',
             variable=self.auto_save_changes,
-            onvalue=True,
-            offvalue=False,
-            command=lambda: settings.set_auto_save_changes(self.auto_save_changes.get()))
+            command=lambda: self.update_auto_save(self.auto_save_changes.get()))
 
-        self.autoUseTrackBox = ttk.Checkbutton(
+        self.auto_use_track_box = ttk.Checkbutton(
             self.c,
             text='Auto Use track',
             variable=self.auto_use_track,
-            onvalue=True,
-            offvalue=False,
-            command=lambda: settings.set_auto_use_track(self.auto_use_track.get()))
+            command=lambda: self.update_auto_use_track(self.auto_use_track.get()))
+
+        self.community_button = ttk.Button(
+            self.c,
+            text="Community",
+            command=community.CommunityWidget
+        )
+
+        self.import_setups = ttk.Button(
+            self.c,
+            text="import previous setups",
+            command=self.update.populate_db_from_setups_dir
+        )
 
         self.useButton = ttk.Button(
             self.c,
@@ -558,8 +369,6 @@ class Widgets:
         self.fuel_load_Scale = scales.make("Fuel load", from_=5, to=110)
 
         self.track_box.selection_clear(1, last=None)
-        self.sliders = self.list_sliders()
-
         self.grid()
 
     def grid(self):
@@ -569,7 +378,7 @@ class Widgets:
             column=2,
             columnspan=5)
 
-        box = GridWidgets()
+        box = grid_widgets.GridWidgets()
 
         box.grid_box(self.track_box, rowspan=3)
         box.grid_box(self.race_box)
@@ -578,39 +387,51 @@ class Widgets:
         box.grid_box(self.game_mode_box)
         box.grid_box(self.preset_box)
 
-        check_box = GridWidgets(startrow=11, padx=10)
+        check_box = grid_widgets.GridWidgets(startrow=8, padx=10)
         check_box.grid_box(self.sort_tracks_box)
-        check_box.grid_box(self.autoUseChangesBox)
-        check_box.grid_box(self.autoSaveChangesBox)
-        check_box.grid_box(self.autoUseTrackBox)
+        check_box.grid_box(self.auto_use_changes_box)
+        check_box.grid_box(self.auto_save_changes_box)
+        check_box.grid_box(self.auto_use_track_box)
+        check_box.grid_box(self.import_setups)
 
-        buttons = GridWidgets(startrow=check_box.get_row(), increment_horizontal=True)
+        buttons = grid_widgets.GridWidgets(startrow=check_box.row, increment_horizontal=True)
         buttons.grid_box(self.useButton, columnspan=2)
         buttons.grid_box(self.saveButton)
         buttons.grid_box(self.saveAsButton)
         buttons.grid_box(self.openButton)
         buttons.grid_box(self.tipBtn, columnspan=2)
+        buttons.grid_box(self.community_button)
 
-        status = GridWidgets(startrow=(buttons.get_row() + 1))
+        status = grid_widgets.GridWidgets(startrow=(buttons.row + 1))
         status.grid_box(self.status_bar, columnspan=7)
 
         self.c.grid_columnconfigure(0, weight=1)
         self.c.grid_rowconfigure(11, weight=1)
 
-    def toggle_track_list(self):
-        sort_bool = self.sort_tracks.get()
-        self.settings.set_sort_tracks(sort_bool)
-        track.toggle_track_sort(sort_bool)
+    def toggle_track_list(self, sort_bool):
+        self.settings.sort_tracks = sort_bool
+        tracks.toggle_track_sort(sort_bool)
         self.track_box.delete(0, END)
-        self.track_box.insert(END, *track.track_sorted_list)
+        self.track_box.insert(END, *tracks.track_sorted_list)
         self.tracks_background_color()
         event.box_event()
 
     def tracks_background_color(self):
-        for i in range(0, len(track.track_sorted_list), 2):
+        for i in range(0, len(tracks.track_sorted_list), 2):
             self.track_box.itemconfigure(i, background='#576366', fg=self.fg)
 
-    def list_sliders(self):
+    def update_auto_use(self, b):
+        self.settings.auto_use_changes = b
+
+    def update_auto_save(self, b):
+        self.settings.auto_save_changes = b
+
+    def update_auto_use_track(self, b):
+        self.settings.auto_use_track = b
+
+    @property
+    def sliders(self):
+        """list of sliders"""
         return [
             self.front_wing_Scale,
             self.rear_wing_Scale,
@@ -636,8 +457,44 @@ class Widgets:
             self.fuel_load_Scale,
             self.ramp_differential_Scale]
 
-    def toggle_race_sliders(self):
-        race = self.race_box.get()
+    @sliders.setter
+    def sliders(self, unpacked_setup):
+        if unpacked_setup[0] is True:
+            i = 8
+            for slider in self.sliders:
+                if slider.offset != 1:
+                    value = unpacked_setup[i]
+                    p = round(value - slider.offset, slider.res)
+                    product = round(p / slider.step, slider.res) + 1
+                    slider.set(product)
+                else:
+                    slider.set(unpacked_setup[i])
+                i += 1
+            print('loaded from db', unpacked_setup)
+        else:
+            create_slider = SliderCounter(unpacked_setup)
+            for slider in self.sliders:
+                create_slider.set_slider_value(slider)
+
+    def set_starting_values(self):
+        self.track_box.selection_set(0)
+        self.race_box.set(self.settings.race)
+        self.cars_box['values'] = self.raceSettings[self.settings.race]
+        self.cars_box.set(self.settings.cars)
+        self.weather_box.set(self.settings.weather)
+        self.game_mode_box.set(self.settings.game_mode)
+        self.preset_box.set("Load Preset")
+        if self.settings.sort_tracks:
+            self.sort_tracks_box.invoke()
+        if self.settings.auto_use_changes:
+            self.auto_use_changes_box.invoke()
+        if self.settings.auto_save_changes:
+            self.auto_save_changes_box.invoke()
+        if self.settings.auto_use_track:
+            self.auto_use_track_box.invoke()
+        self.status_message.set('')
+
+    def toggle_race_sliders(self, race):
         on_throttle = 'enabled'
         off_throttle = 'enabled'
         brake_pressure = 'enabled'
@@ -663,38 +520,13 @@ class Widgets:
         self.ballast_Scale.config(state=ballast)
         self.ramp_differential_Scale.config(state=ramp_differential)
 
-    def set_sliders(self, unpacked_setup):
-        create_slider = SliderCounter(unpacked_setup)
-        for slider in self.sliders:
-            create_slider.set_slider_value(slider)
+    @property
+    def league_id(self):
+        return self.race_box.get()
 
-    def set_starting_values(self):
-        self.track_box.selection_set(0)
-        self.race_box.set(self.settings.race)
-        self.cars_box['values'] = self.raceSettings[self.settings.race]
-        self.cars_box.set(self.settings.cars)
-        self.weather_box.set(self.settings.weather)
-        self.game_mode_box.set(self.settings.game_mode)
-        self.preset_box.set("Load Preset")
-        if self.settings.sort_tracks:
-            self.sort_tracks_box.invoke()
-        if self.settings.auto_use_changes:
-            self.autoUseChangesBox.invoke()
-        if self.settings.auto_save_changes:
-            self.autoSaveChangesBox.invoke()
-        if self.settings.auto_use_track:
-            self.autoUseTrackBox.invoke()
-        self.status_message.set('')
-
-    def get_game_mode_id(self):
-        return self.game_modes[self.game_mode_box.get()]
-
-    def get_weather_id(self):
-        if self.weather_box.get() == "Wet":
-            return 0
-        return 1
-
-    def get_team_id(self):
+    @property
+    def team_id(self):
+        """returns the ingame f1game team_id"""
         team_ids = [  # https://forums.codemasters.com/topic/50942-f1-2020-udp-specification/
             "Mercedes",
             "Ferrari",
@@ -779,6 +611,56 @@ class Widgets:
             return 41  # multiplayer car
         return team_ids.index(team)
 
+    @property
+    def track_id(self):
+        return tracks.current_track
+
+    @property
+    def game_mode_id(self):
+        return self.game_modes[self.game_mode_box.get()]
+
+    @property
+    def weather_id(self):
+        if self.weather_box.get() == "Wet":
+            return 0
+        return 1
+
+    def create_car_setup(self):
+        league_id = league_sql.LeagueSql().get_id_from_name(self.league_id)
+        car_setup = CarSetup(
+            league_id=league_id,
+            save_name=" save name test",
+            team_id=db.teams.get_team_id(self.cars_box.get(), league_id),
+            track_id=track_sql.TrackSql().get_track_id_by_country(self.track_id),
+            game_mode_id=self.game_mode_id,
+            weather_id=self.weather_id,
+
+            front_wing=self.front_wing_Scale.get(),
+            rear_wing=self.rear_wing_Scale.get(),
+            on_throttle=self.on_throttle_Scale.get(),
+            off_throttle=self.off_throttle_Scale.get(),
+            front_camber=self.front_camber_Scale.get(),
+            rear_camber=self.rear_camber_Scale.get(),
+            front_toe=self.front_toe_Scale.get(),
+            rear_toe=self.rear_toe_Scale.get(),
+            front_suspension=self.front_suspension_Scale.get(),
+            rear_suspension=self.rear_suspension_Scale.get(),
+            front_suspension_height=self.front_suspension_height_Scale.get(),
+            rear_suspension_height=self.rear_suspension_height_Scale.get(),
+            front_antiroll_bar=self.front_antiroll_bar_Scale.get(),
+            rear_antiroll_bar=self.rear_antiroll_bar_Scale.get(),
+            brake_pressure=self.brake_pressure_Scale.get(),
+            brake_bias=self.brake_bias_Scale.get(),
+            front_right_tyre_pressure=self.front_right_tyre_pressure_Scale.get(),
+            front_left_tyre_pressure=self.front_left_tyre_pressure_Scale.get(),
+            rear_right_tyre_pressure=self.rear_right_tyre_pressure_Scale.get(),
+            rear_left_tyre_pressure=self.rear_left_tyre_pressure_Scale.get(),
+            ballast=self.ballast_Scale.get(),
+            fuel_load=self.fuel_load_Scale.get(),
+            ramp_differential=self.ramp_differential_Scale.get()
+        )
+        return car_setup
+
 
 class Events:
     def __init__(self, settings):
@@ -806,19 +688,16 @@ class Events:
         self.weather_box.bind("<<ComboboxSelected>>", self.box_event)
         self.preset_box.bind("<<ComboboxSelected>>", self.preset_box_event)
         self.game_mode_box.bind("<<ComboboxSelected>>", self.box_event)
-        #self.sort_tracks_box.bind("<<")
-
-        slider_event = self.slider_event
         for slider in widgets.sliders:
-            slider.bind("<ButtonRelease-1>", slider_event)
+            slider.bind("<ButtonRelease-1>", self.slider_event)
 
     def show_track_selection(self, *args):
-        track.set_current_track()
-        self.select_track(track.get_current_track())
+        tracks.set_current_track(widgets.track_box.curselection())
+        self.select_track(tracks.current_track)
 
     def race_box_event(self, *args):
         race = self.race_box.get()
-        widgets.toggle_race_sliders()
+        widgets.toggle_race_sliders(race)
         self.settings.dump("race_box", race)
         self.cars_box['values'] = widgets.raceSettings[race]
         self.cars_box.current(0)
@@ -851,25 +730,47 @@ class Events:
         widgets.preset_box.set("Load Preset")
 
     def keep_track_selection_highlighted(self):
-        track_list = track.track_sorted_list
-        self.track_box.selection_set(track_list.index(track.get_current_track()))
+        track_list = tracks.track_sorted_list
+        self.track_box.selection_set(track_list.index(tracks.current_track))
 
     # select the file to open, unpack the file, update sliders, if autoUse is checked;  write to workshopfile
     def select_track(self, country):
-        race = self.race_box.get()
-        car = self.cars_box.get()
+        league = self.race_box.get()
+        team = self.cars_box.get()
         weather = self.weather_box.get()
         game_mode = self.game_mode_box.get()
 
-        root.filename = SetupDir + race + '/' + car + '/' + weather + '/' + game_mode + '/' + country + ".bin"
+        ids = db.get_ids(league,
+                         country,
+                         weather,
+                         game_mode,
+                         team)
+        setup_db = db.setups.get_setup_by_ids(*ids)
 
-        if not os.path.isfile(root.filename):
-            self.setup.make_file()
+        try:
+            widgets.sliders = (True, *db.setups.get_setup_by_setup_id(setup_db[0][0]))
+        except IndexError:
+            """ if its not in db """
+            print("file not in db")
+            ids = db.get_ids(league,
+                             country,
+                             weather,
+                             "Invitational",
+                             "All Cars")
+            setup_db = db.setups.get_setup_by_ids(*ids)
 
-        self.setup.load_setup_file(root.filename)
+            try:
+                widgets.sliders = (True, *db.setups.get_setup_by_setup_id(setup_db[0][0]))
+            except IndexError:
+                preset_file_path = SetupDir + "Presets/Preset 3.bin"
+                setup.load_setup_file(preset_file_path)
+
+        if config.auto_use_track:
+            setup.use_setup()
+
         widgets.status_message.set(
             " %s | %s | (%s) %s [%s]" % (
-                race, car, country, track.tracks[country], widgets.weatherTypes[weather]))
+                league, team, country, tracks.tracks[country], widgets.weatherTypes[weather]))
 
 
 class Setup:
@@ -913,15 +814,14 @@ class Setup:
 
         self.size = len(self.save_name)  # default size 20
 
-        self.setupStructPackingFormat = self.get_packing_format()
-
-    def get_packing_format(self):
+    @property
+    def packing_format(self):
         # ui08  |Unsigned 8-bit integer
         # i08   |Signed 8-bit integer
         # fp32  |Floating point (32-bit)
 
         # self.size = len(self.save_name)
-        f = \
+        fmt = \
             f'<' \
             f'{len(self.header)}s5l1b' \
             f'{len(self.versions)}sfb' \
@@ -957,7 +857,7 @@ class Setup:
             f'{len(self.fl)}sfb ' \
             f'{len(self.rd)}sfb ' \
             f'{len(self.footer)}s8B'
-        return f
+        return fmt
 
     def set_file_size(self, filename):
         # all information in the setup is static except for the length of the save name
@@ -980,19 +880,19 @@ class Setup:
         self.save_name = 'All setups | scruffe'
         self.size = len(self.save_name)
 
-        self.setupStructPackingFormat = self.get_packing_format()
+        # self.setupStructPackingFormat = self.get_packing_format()
         packed_setup = struct.pack(
-            self.setupStructPackingFormat,
+            self.packing_format,
             b(self.header), 0, 1, 0, 32, 0, 7,
             # \x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x07
             b(self.versions), 0, 9,  # \x00\x00\x00\x00\t
             b(self.save_name_length), self.size,  # \x14      probably string length of next name
             b(self.save_name), 7,  # \x07
-            b(self.team_id), widgets.get_team_id(), 0, 8,  # \x00\x00\x08
-            b(self.track_id), track.get_track_id(), 12,  # \x03\x0c
-            b(self.game_mode_id), widgets.get_game_mode_id(), 0, 0, 0, 12,
+            b(self.team_id), widgets.team_id, 0, 8,  # \x00\x00\x08
+            b(self.track_id), tracks.track_id, 12,  # \x03\x0c
+            b(self.game_mode_id), widgets.game_mode_id, 0, 0, 0, 12,
             # \x05\x00\x00\x00 \x0c
-            b(self.weather_bool), widgets.get_weather_id(), 9,  # \x01\t
+            b(self.weather_bool), widgets.weather_id, 9,  # \x01\t
             b(self.timestamp), 19, 14, 5, 95, 0, 0, 0, 0, 15,  # \x13\x0e\x05_\x00\x00\x00\x00\x0f
             b(self.game_setup_mode), 0, 10,  # \x00\n
             b(self.fw), widgets.front_wing_Scale.get(), 9,
@@ -1032,13 +932,17 @@ class Setup:
         file.close()
 
     def use_setup(self):
-        race = widgets.race_box.get()
-        workshop_file = config.get_workshop_dir(race)
-        self.write_setup(workshop_file)
+        config.workshop_file = config.get_workshop_race_id(widgets.race_box.get())
+        self.write_setup(config.workshop_file)
         widgets.status_message.set("Using current setup")
 
     def save_setup(self):
-        self.write_setup(root.filename)
+        car_setup = widgets.create_car_setup()
+        print(car_setup.setup_id, car_setup.team_id)
+        db.save_setup_to_db(car_setup)
+        testing.commit_conn()
+
+        # self.write_setup(root.filename)
         widgets.status_message.set("Saved")
 
     def use_save_setup(self):
@@ -1055,9 +959,8 @@ class Setup:
     def unpack_setup(self, path):
         try:
             self.set_file_size(path)
-            self.setupStructPackingFormat = self.get_packing_format()
             setup_file = open(path, "rb")
-            unpacked_setup = struct.unpack(self.setupStructPackingFormat, setup_file.read())
+            unpacked_setup = struct.unpack(self.packing_format, setup_file.read())
             setup_file.close()
             return unpacked_setup
         except struct.error:
@@ -1070,9 +973,7 @@ class Setup:
         widgets.status_message.set(" Opened (" + root.filename + ")")
 
     def load_setup_file(self, path):
-        unpacked_setup = self.unpack_setup(path)
-        #name = unpacked_setup[12].decode("utf-8")
-        widgets.set_sliders(unpacked_setup)
+        widgets.sliders = self.unpack_setup(path)
         if config.auto_use_track:
             self.use_setup()
 
@@ -1085,36 +986,52 @@ class Setup:
             except OSError:
                 print("Creation of the directory %s failed" % path)
 
-    def get_preset_file(self):
-        race = widgets.race_box.get()
-        car = widgets.cars_box.get()
-        weather = widgets.weather_box.get()
-        game_mode = widgets.game_mode_box.get()
-        track_name = track.get_current_track()
-        default_setups = config.default_setups
 
-        self.check_dir(SetupDir + race + '/' + car + '/' + weather + '/' + game_mode + '/')
-        if default_setups == "Preset":
-            preset_file = SetupDir + "Presets/Preset 3.bin"
-        else:
-            f = SetupDir + race + '/' + default_setups + '/' + weather + '/' + game_mode + '/' + track_name + ".bin"
-            if os.path.isfile(f):
-                preset_file = f
-            elif os.path.isfile(
-                    SetupDir + race + '/' + default_setups + '/' + weather + '/Multiplayer/' + track_name + ".bin"):
-                preset_file = SetupDir + race + '/' + default_setups + '/' + weather + '/Multiplayer/' + track_name + ".bin"
-            elif os.path.isfile(SetupDir + race + '/' + default_setups + '/Dry/Multiplayer/' + track_name + ".bin"):
-                preset_file = SetupDir + race + '/' + default_setups + '/Dry/Multiplayer/' + track_name + ".bin"
-            elif os.path.isfile(SetupDir + 'F1 2020/' + default_setups + '/Dry/Multiplayer/' + track_name + ".bin"):
-                preset_file = SetupDir + 'F1 2020/' + default_setups + '/Dry/Multiplayer/' + track_name + ".bin"
-            else:
-                preset_file = SetupDir + "Presets/Preset 3.bin"
-        return preset_file
+class Update:
 
-    def make_file(self):
-        preset_file = self.get_preset_file()
-        self.load_setup_file(preset_file)
-        self.write_setup(root.filename)
+    def populate_db_from_setups_dir(self):
+        """previous version 1.62 and before used individual .bin files to save setups"""
+        setup_dir = filedialog.askdirectory(initialdir=INSTALL_PATH, title="Select setup directory")
+        """find files in dir, check if its already in db, load file from dir, write to db"""
+        for league in list(widgets.raceSettings):
+            path = setup_dir + "/" + league
+            if os.path.isdir(path):
+                for team in widgets.raceSettings[league]:
+                    team_path = path + "/" + team
+                    if os.path.isdir(team_path):
+                        for weather in list(widgets.weatherTypes):
+                            weather_path = team_path + "/" + weather
+                            if os.path.isdir(weather_path):
+                                for game_mode in widgets.game_modes:
+                                    game_mode_path = weather_path + "/" + game_mode
+                                    if os.path.isdir(game_mode_path):
+                                        for country in tracks.tracks:
+                                            file_path = game_mode_path + "/" + country + ".bin"
+                                            if os.path.isfile(file_path):
+                                                print(file_path)
+                                                db = SqlDB()
+                                                ids = db.get_ids(league,
+                                                                 country,
+                                                                 weather,
+                                                                 game_mode,
+                                                                 team)
+                                                try:
+                                                    setup_db = db.setups.get_setup_by_ids(*ids)
+                                                    setup_id = setup_db[0][0]
+                                                    print(setup_id, "is already in database")
+                                                except IndexError:
+
+                                                    widgets.sliders = setup.unpack_setup(file_path)
+                                                    setup.load_setup_file(file_path)
+                                                    car_setup = widgets.create_car_setup()
+                                                    car_setup.league_id = ids[0]
+                                                    car_setup.track_id = ids[1]
+                                                    car_setup.weather_id = ids[2]
+                                                    car_setup.game_mode_id = ids[3]
+                                                    car_setup.team_id = ids[4]
+                                                    print(car_setup.values)
+                                                    db.save_setup_to_db(car_setup)
+                                                    print("added to database")
 
 
 def open_url(url):
@@ -1127,8 +1044,9 @@ def get_list(d):
 
 if __name__ == "__main__":
     json_data = Json()
-    config = Config()
-    track = Track()
+    db = SqlDB()
+    config = Config(root, INSTALL_PATH)
+    tracks = Tracks(json_data, config.sort_tracks)
     setup = Setup()
     widgets = Widgets(config)
 
@@ -1138,8 +1056,11 @@ if __name__ == "__main__":
     event = Events(config)
     widgets.set_starting_values()
     widgets.tracks_background_color()
-    widgets.toggle_race_sliders()
+    widgets.toggle_race_sliders(widgets.race_box.get())
 
     event.show_track_selection()
+
+
+
 
 root.mainloop()

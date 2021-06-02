@@ -207,7 +207,7 @@ def main():
 
     wait_console_thread.request_quit()
     wait_console_thread.join()
-    wait_console_thread.close()
+    wait_console_thread.close_conn()
 
     monitor_thread.request_quit()
     monitor_thread.join()
