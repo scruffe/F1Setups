@@ -1,5 +1,10 @@
+from jsondata import Json
+
+
+
 class Tracks:
-    def __init__(self, json_data, sort_tracks=True):
+    def __init__(self, sort_tracks=True):
+        json_data = Json()
 
         self.current_track = "Australia"
         self.tracks_sorted = json_data.tracks_sorted

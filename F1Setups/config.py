@@ -4,12 +4,12 @@ import winreg
 import re
 import webbrowser
 from tkinter import filedialog, messagebox, ttk
+import pathlib
 
 
 class Config:
-    def __init__(self, root, install_path):
-        self.root = root
-        self.INSTALL_PATH = install_path
+    def __init__(self):
+        self.INSTALL_PATH = pathlib.Path(__file__).parent.absolute()
 
         self.config = self.load()
         self._steam_path = self.config['steam_path']
@@ -54,11 +54,6 @@ class Config:
                 "Not Subscribed to steam workshop, Subscribe to: " + url)
             webbrowser.open_new(url)
 
-    def use_theme(self):
-        self.root.tk.call('lappend', 'auto_path', str(self.INSTALL_PATH))
-        self.root.tk.call('package', 'require', self.theme)
-        # s.theme_names('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-        ttk.Style().theme_use(self.theme)
 
     @property
     def steam_path(self):
