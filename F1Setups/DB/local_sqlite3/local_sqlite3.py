@@ -1,7 +1,7 @@
-from sql import *
+from . import *
 
 
-class SqlDB:
+class LocalSqlite3:
     def __init__(self):
         self.setups = setup_sql.SetupSql()
         self.leagues = league_sql.LeagueSql()
@@ -14,10 +14,10 @@ class SqlDB:
         print(
             car_setup.setup_id,
             car_setup.league_id,
-              car_setup.track_id,
-              car_setup.weather_id,
-              car_setup.game_mode_id,
-              car_setup.team_id)
+            car_setup.track_id,
+            car_setup.weather_id,
+            car_setup.game_mode_id,
+            car_setup.team_id)
 
         db_setup = self.setups.get_setup_by_ids(
             car_setup.league_id,
@@ -31,7 +31,7 @@ class SqlDB:
         else:
             print(db_setup[0][0], "didn't save, already exists, updating")
             car_setup.setup_id = db_setup[0][0]
-            self.setups.update_setup_values(car_setup)
+            self.setups.update_setup_values_on_setup_id(car_setup)
             print(car_setup.values)
             print(self.setups.get_setup_by_setup_id(car_setup.setup_id))
 
