@@ -2,7 +2,7 @@ F1Setups/packets/
 F1Setups/DB/local_sqlite3/data.db
 F1Setups/DB/server_postgres/database.ini
 F1Setups/temp/
-F1Setups/awthemes-10.2.1/
+F1Setups/awthemes-10.2.1/*
 .idea/
 # Created by https://www.toptal.com/developers/gitignore/api/python,vscode
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,vscode
