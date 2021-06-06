@@ -5,5 +5,6 @@ __all__ = [
     'team_sql',
     'track_sql',
     'user_sql',
-    'weather_sql'
+    'weather_sql',
+    'presets_sql'
 ]

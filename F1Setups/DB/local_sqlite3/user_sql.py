@@ -3,7 +3,7 @@ import sqlite3
 
 class UserSql:
     def __init__(self):
-        self.conn = sqlite3.connect('./data.db')
+        self.conn = sqlite3.connect('F1Setups/DB/local_sqlite3/data.db')
         self.c = self.conn.cursor()
         self.create_table()
 
@@ -42,7 +42,7 @@ class UserSql:
                        {'user_id': user_id})
         return self.c.fetchone()
 
-    def get_user_by_strs(self, first, last, tag):
+    def get_user_by_strings(self, first, last, tag):
         self.c.execute("""
                 SELECT 
                     user_id,
