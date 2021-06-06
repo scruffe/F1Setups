@@ -5,16 +5,17 @@ from .config_pg import config
 
 
 class ServerPostgres:
-    def exec(self, sql, one=False, *args):
+    def exec(self, sql, fetch=None, args=None):
         conn = None
+        data = None
         try:
             params = config()
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
             cur.execute(sql, args)
-            if one:
+            if fetch == "one":
                 data = cur.fetchone()
-            else:
+            elif fetch == "all":
                 data = cur.fetchall()
             conn.commit()
             return data
@@ -30,21 +31,27 @@ class ServerPostgres:
                 setup_name,
                 downloads,
                 user_id,
-                setup
+                car_setup
                 )
                  VALUES(
                     %s,%s,%s, ROW %s
                     ) RETURNING setup_id;"""
 
-        return (self.exec(sql, True, (setup_name, downloads, user_id, setup)))[0]
+        return self.exec(sql, True, (setup_name, downloads, user_id, setup))
 
     def get_setups(self):
         sql = """SELECT * FROM setups """
-        return self.exec(sql)
+        return self.exec(sql, "all")
 
     def get_setup_from_id(self, setup_id):
         sql = """SELECT * FROM setups WHERE setup_id=%s"""
-        return self.exec(sql, True, setup_id)
+        return self.exec(sql, "one", setup_id)
+
+    def update_downloads(self, setup_id):
+        print("incrementing downloads : " + setup_id)
+        sql = """UPDATE setups SET downloads=downloads+1 WHERE setup_id=%s"""
+        self.exec(sql, "", setup_id)
+
 
 
 if __name__ == '__main__':
