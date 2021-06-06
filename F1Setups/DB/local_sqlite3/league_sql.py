@@ -3,7 +3,7 @@ import sqlite3
 
 class LeagueSql:
     def __init__(self):
-        self.conn = sqlite3.connect('./data.db')
+        self.conn = sqlite3.connect('F1Setups/DB/local_sqlite3/data.db')
         self.c = self.conn.cursor()
         self.create_table()
 
@@ -18,7 +18,7 @@ class LeagueSql:
     def insert_league(self, league):
         with self.conn:
             self.c.execute("INSERT INTO leagues VALUES (:league_id, :name)",
-                      {'league_id': league.league_id, 'name': league.name})
+                           {'league_id': league.league_id, 'name': league.name})
         self.conn.commit()
 
     def get_leagues(self):

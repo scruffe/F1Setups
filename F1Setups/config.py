@@ -34,14 +34,14 @@ class Config:
 
     @staticmethod
     def load():
-        with open('config.json') as f:
+        with open('F1Setups/config.json') as f:
             config_f = json.load(f)
         f.close()
         return config_f
 
     def dump(self, key, value):
         self.config[key] = value
-        with open("config.json", "w") as f:
+        with open("F1Setups/config.json", "w") as f:
             json.dump(self.config, f, indent=4)
         f.close()
 
