@@ -174,17 +174,15 @@ class Setup:
     def use_setup(self):
         self.config.workshop_file = self.config.get_workshop_race_id(self.widgets.race_box.get())
         self.write_setup(self.config.workshop_file)
-        self.widgets.status_message.set("Using current setup")
 
     def save_setup(self, car_setup):
         print(car_setup.setup_id, car_setup.team_id)
         self.db.save_setup_to_db(car_setup)
 
-
     def save_as_setup(self):
         path = filedialog.asksaveasfilename(initialdir=INSTALL_PATH, title="Select file",
-                                                      defaultextension=".bin",
-                                                      filetypes=(("bin files", "*.bin"), ("all files", "*.*")))
+                                            defaultextension=".bin",
+                                            filetypes=(("bin files", "*.bin"), ("all files", "*.*")))
         self.write_setup(path)
         return path
 

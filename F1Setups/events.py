@@ -5,12 +5,12 @@ from tracks import Tracks
 
 
 class Events:
-    def __init__(self, setup, widgets):
+    def __init__(self, widgets):
         self.db = LocalSqlite3()
         self.tracks = Tracks()
         self.widgets = widgets
         self.config = Config()
-        self.setup = setup
+        self.setup = widgets.setup
 
         self.track_box = widgets.track_box
         self.race_box = widgets.race_box
@@ -19,7 +19,7 @@ class Events:
         self.preset_box = widgets.preset_box
         self.game_mode_box = widgets.game_mode_box
 
-        self.sort_tracks_box = widgets.sort_tracks_box
+        #self.sort_tracks_box = widgets.sort_tracks_box
 
         self.sliders = widgets.sliders
 

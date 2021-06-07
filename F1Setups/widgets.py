@@ -1,11 +1,11 @@
-from tkinter import ttk, N, W, E, S, StringVar, BooleanVar, Listbox, END
+from tkinter import ttk, N, W, E, S, StringVar, Listbox, END
 from tkinter.ttk import Combobox
 import webbrowser
 
 from DB.local_sqlite3 import league_sql, track_sql
 
 from carsetup import CarSetup
-from community import community, commands
+from community import commands
 from grid_widgets import GridWidgets
 from make_scale import MakeScale
 from slidercounter import SliderCounter
@@ -19,7 +19,6 @@ from config import Config
 from top_menu import TopMenu
 
 
-
 class Widgets:
     def __init__(self, root):
         self.setup = Setup(self)
@@ -29,7 +28,7 @@ class Widgets:
         self.tracks = Tracks()
         self.config = Config()
 
-        TopMenu(self, root)
+        self.top_menu = TopMenu(self, root)
 
         self.preset_setups = json_data.preset_setups
         self.game_modes = json_data.game_modes
@@ -46,10 +45,6 @@ class Widgets:
 
         self.status_message = StringVar()
 
-        self.sort_tracks = BooleanVar()
-        self.auto_use_track = BooleanVar()
-        self.auto_save_changes = BooleanVar()
-        self.auto_use_changes = BooleanVar()
         self.tracks_sorted = StringVar(value=self.tracks.track_sorted_list)
 
         self.sliderFrame = ttk.LabelFrame(
@@ -75,25 +70,30 @@ class Widgets:
         self.preset_box = self.create_combobox(list(self.preset_setups.values()))
         self.game_mode_box = self.create_combobox(list(self.game_modes))
 
+        """
         self.sort_tracks_box = self.create_checkbox(
             'Order Tracks', self.sort_tracks, lambda: self.toggle_track_list(self.sort_tracks.get()))
         self.auto_use_changes_box = self.create_checkbox(
             'Auto Use Changes', self.auto_use_changes, lambda: self.update_auto_use(self.auto_use_changes.get()))
         self.auto_save_changes_box = self.create_checkbox(
-            'Auto Save Changes', self.auto_save_changes, lambda: self.update_auto_save(self.auto_save_changes.get()))
+            'Auto Save Changes',
+            self.auto_save_changes,
+            lambda: self.update_auto_save(self.auto_save_changes.get()))
         self.auto_use_track_box = self.create_checkbox(
-            'Auto Use track', self.auto_use_track, lambda: self.update_auto_use_track(self.auto_use_track.get()))
+            'Auto Use track', self.auto_use_track,
+            lambda: self.update_auto_use_track(self.auto_use_track.get()))
+        """
 
-        self.upload_button = self.create_button("Upload", self.upload)
-        self.community_button = self.create_button("Community", community.Community)
-        self.import_setups = self.create_button("import previous setups", self.update.populate_db_from_setups_dir)
-        self.useButton = self.create_button("Use", self.setup.use_setup)
+        # self.upload_button = self.create_button("Upload", self.upload)
+        # self.community_button = self.create_button("Community", community.Community)
+        # self.import_setups = self.create_button("import previous setups", self.update.populate_db_from_setups_dir)
+        self.useButton = self.create_button("Use", self.use_cmd)
         # self.useSaveButton = self.create_button("Save & Use", self.use_save_cmd)
-        self.saveButton = self.create_button("Save", self.save_cmd)
+        # self.saveButton = self.create_button("Save", self.save_cmd)
         # self.saveAsButton = self.create_button("Save As", self.save_as_cmd)
         # self.openButton = self.create_button("Open", self.open_cmd)
-        self.tipBtn = self.create_button("Tip Scruffe",
-                                         lambda: self.open_url("https://paypal.me/valar"))
+        # self.tipBtn = self.create_button("Tip Scruffe",
+        #                                  lambda: self.open_url("https://paypal.me/valar"))
         self.status_bar = ttk.Label(
             self.c,
             textvariable=self.status_message,
@@ -134,13 +134,15 @@ class Widgets:
                 self.game_mode_box,
                 self.preset_box]
 
-    @property
+
+    """@property
     def check_boxes(self):
         return [self.sort_tracks_box,
                 self.auto_use_changes_box,
                 self.auto_save_changes_box,
                 self.auto_use_track_box,
-                self.import_setups]
+                # self.import_setups
+                ]"""
 
     @property
     def league_id(self):
@@ -335,24 +337,29 @@ class Widgets:
 
         check_box_grid = GridWidgets(startrow=8, padx=10)
 
-        for check_box in self.check_boxes:
-            check_box_grid.grid_box(check_box)
+
+        """for check_box in self.check_boxes:
+            check_box_grid.grid_box(check_box)"""
 
         buttons = GridWidgets(startrow=check_box_grid.row, increment_horizontal=True)
 
         buttons.grid_box(self.useButton, columnspan=2)
-        buttons.grid_box(self.saveButton)
+        # buttons.grid_box(self.saveButton)
         # buttons.grid_box(self.saveAsButton)
         # buttons.grid_box(self.openButton)
-        buttons.grid_box(self.tipBtn, columnspan=2)
-        buttons.grid_box(self.community_button)
-        buttons.grid_box(self.upload_button)
+        # buttons.grid_box(self.tipBtn, columnspan=2)
+        # buttons.grid_box(self.community_button)
+        # buttons.grid_box(self.upload_button)
 
-        status = GridWidgets(startrow=(buttons.row + 1))
+        status = GridWidgets(startrow=(buttons.row + 16))
         status.grid_box(self.status_bar, columnspan=7)
 
         self.c.grid_columnconfigure(0, weight=1)
         self.c.grid_rowconfigure(11, weight=1)
+
+    def use_cmd(self):
+        self.setup.use_setup()
+        self.status_message.set("Using current setup")
 
     def open_cmd(self):
         try:
@@ -384,25 +391,23 @@ class Widgets:
 
     def toggle_track_list(self, sort_bool):
         """sort track list based on calendar or Alphabet"""
+        # save new value to config file
         self.config.sort_tracks = sort_bool
+
+        # update track list
         self.tracks.toggle_track_sort(sort_bool)
         self.track_box.delete(0, END)
         self.track_box.insert(END, *self.tracks.track_sorted_list)
+
+        # redo background color
         self.tracks_background_color()
-        Events(self.setup, self).box_event()
+
+        # show the previous selected track
+        Events(self).box_event()
 
     def tracks_background_color(self):
         for i in range(0, len(self.tracks.track_sorted_list), 2):
             self.track_box.itemconfigure(i, background='#576366', fg=self.fg)
-
-    def update_auto_use(self, b):
-        self.config.auto_use_changes = b
-
-    def update_auto_save(self, b):
-        self.config.auto_save_changes = b
-
-    def update_auto_use_track(self, b):
-        self.config.auto_use_track = b
 
     def set_starting_values(self):
         """set widgets default values"""
@@ -413,15 +418,8 @@ class Widgets:
         self.weather_box.set(self.config.weather)
         self.game_mode_box.set(self.config.game_mode)
         self.preset_box.set("Load Preset")
-        if self.config.sort_tracks:
-            self.sort_tracks_box.invoke()
-        if self.config.auto_use_changes:
-            self.auto_use_changes_box.invoke()
-        if self.config.auto_save_changes:
-            self.auto_save_changes_box.invoke()
-        if self.config.auto_use_track:
-            self.auto_use_track_box.invoke()
         self.status_message.set('')
+        self.top_menu.set_starting_values()
 
     def toggle_race_sliders(self, race):
         on_throttle = 'enabled'
@@ -488,4 +486,3 @@ class Widgets:
     @staticmethod
     def open_url(url):
         webbrowser.open_new(url)
-

@@ -9,7 +9,6 @@ from events import Events
 from setup import Setup
 
 from config import Config
-from top_menu import TopMenu
 
 from tracks import Tracks
 
@@ -33,8 +32,6 @@ if __name__ == "__main__":
 
     SetupDir = str(INSTALL_PATH) + "/Setups/"
 
-
-
     config = Config()
     tracks = Tracks(config.sort_tracks)
     widgets = Widgets(root)
@@ -42,7 +39,7 @@ if __name__ == "__main__":
 
     use_theme()
 
-    event = Events(setup, widgets)
+    event = Events(widgets)
     widgets.set_starting_values()
     widgets.tracks_background_color()
     widgets.toggle_race_sliders(widgets.race_box.get())
@@ -51,7 +48,8 @@ if __name__ == "__main__":
 
 
     #server_postgres.create_table.create_tables()
+    root.mainloop()
 
 
 
-root.mainloop()
+
