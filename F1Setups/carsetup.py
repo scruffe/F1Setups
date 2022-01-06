@@ -70,11 +70,11 @@ class CarSetup:
         return[
             self.setup_id,
             self.league_id,
-            self.save_name,
-            self.team_id,
             self.track_id,
+            self.weather_id,
             self.game_mode_id,
-            self.weather_id
+            self.team_id,
+            self.save_name
         ]
 
     @property

@@ -12,6 +12,8 @@ class LocalSqlite3:
 
     def save_setup_to_db(self, car_setup):
         print(
+            "saving to db : \n "
+            "    S L C W G T \n    ",
             car_setup.setup_id,
             car_setup.league_id,
             car_setup.track_id,
@@ -29,10 +31,12 @@ class LocalSqlite3:
             self.setups.insert_setup(car_setup)
             print('saved')
         else:
-            print(db_setup[0][0], "didn't save, already exists, updating")
+            print(db_setup[0][0], " already exists, updating instead")
             car_setup.setup_id = db_setup[0][0]
             self.setups.update_setup_values_on_setup_id(car_setup)
-            print(car_setup.values)
+            print("car setup info: ", car_setup.info)
+            print("car setup values: ", car_setup.values)
+
             print(self.setups.get_setup_by_setup_id(car_setup.setup_id))
 
     def get_ids(self, league, country, weather, game_mode, team):

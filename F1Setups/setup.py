@@ -2,6 +2,7 @@ import os
 import struct
 from tkinter import filedialog, messagebox
 from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
+from DB.local_sqlite3.track_sql import TrackSql
 import pathlib
 from tracks import Tracks
 from config import Config
@@ -129,7 +130,7 @@ class Setup:
             b(self.save_name_length), self.size,  # \x14      probably string length of next name
             b(self.save_name), 7,  # \x07
             b(self.team_id), self.widgets.team_id, 0, 8,  # \x00\x00\x08
-            b(self.track_id), self.tracks.track_id, 12,  # \x03\x0c
+            b(self.track_id), TrackSql().get_track_id_by_country(Config().current_track), 12,  # \x03\x0c
             b(self.game_mode_id), self.widgets.game_mode_id, 0, 0, 0, 12,
             # \x05\x00\x00\x00 \x0c
             b(self.weather_bool), self.widgets.weather_id, 9,  # \x01\t
@@ -176,7 +177,6 @@ class Setup:
         self.write_setup(self.config.workshop_file)
 
     def save_setup(self, car_setup):
-        print(car_setup.setup_id, car_setup.team_id)
         self.db.save_setup_to_db(car_setup)
 
     def save_as_setup(self):

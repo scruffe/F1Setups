@@ -67,13 +67,13 @@ class TopMenu:
 
         root.config(menu=menubar)
 
-    def update_auto_use(self, b):
+    def update_auto_use(self, b: bool):
         self.config.auto_use_changes = b
 
-    def update_auto_save(self, b):
+    def update_auto_save(self, b: bool):
         self.config.auto_save_changes = b
 
-    def update_auto_use_track(self, b):
+    def update_auto_use_track(self, b: bool):
         self.config.auto_use_track = b
 
     def set_starting_values(self):

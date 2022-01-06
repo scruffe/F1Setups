@@ -19,7 +19,7 @@ class Events:
         self.preset_box = widgets.preset_box
         self.game_mode_box = widgets.game_mode_box
 
-        #self.sort_tracks_box = widgets.sort_tracks_box
+        # self.sort_tracks_box = widgets.sort_tracks_box
 
         self.sliders = widgets.sliders
 
@@ -36,8 +36,52 @@ class Events:
             slider.bind("<ButtonRelease-1>", self.slider_event)
 
     def show_track_selection(self, *args):
+        print("events - show track")
         self.tracks.set_current_track(self.widgets.track_box.curselection())
-        self.select_track(self.tracks.current_track)
+
+        """select the file to open, unpack the file, update sliders, if autoUse is checked;  write to workshop file"""
+        league: str = self.race_box.get()
+        team: str = self.cars_box.get()
+        weather: str = self.weather_box.get()
+        game_mode: str = self.game_mode_box.get()
+        track: str = Config().current_track
+
+        ids: tuple = self.db.get_ids(
+            league,
+            track,
+            weather,
+            game_mode,
+            team)
+
+        print("selected: \n", league, track, weather, game_mode, team)
+        print("ids: \n", ids)
+        setup_db = self.db.setups.get_setup_by_ids(*ids)
+        print("setup_db: \n", setup_db)
+        try:
+            setup_id = setup_db[0][0]
+            print("Found setup id in db : " + str(setup_id))
+            self.widgets.sliders = (True, *self.db.setups.get_setup_by_setup_id(setup_id))
+        except IndexError:
+            """ if its not in db """
+            print("file not in db")
+            ids = self.db.get_ids(league,
+                                  track,
+                                  weather,
+                                  "Invitational",
+                                  "All Cars")
+            setup_db = self.db.setups.get_setup_by_ids(*ids)
+
+            try:
+                self.widgets.sliders = (True, *self.db.setups.get_setup_by_setup_id(setup_db[0][0]))
+            except IndexError:
+                self.widgets.sliders = (True, *presets_sql.PresetSql().get_preset_by_id(3))
+
+        if self.config.auto_use_track:
+            self.setup.use_setup()
+
+        self.widgets.status_message.set(
+            " %s | %s | (%s) %s [%s]" % (
+                league, team, track, self.tracks.tracks[track], self.widgets.weatherTypes[weather]))
 
     def race_box_event(self, *args):
         race = self.race_box.get()
@@ -75,42 +119,5 @@ class Events:
 
     def keep_track_selection_highlighted(self):
         track_list = self.tracks.track_sorted_list
-        self.track_box.selection_set(track_list.index(self.tracks.current_track))
+        self.track_box.selection_set(track_list.index(self.config.current_track))
 
-    def select_track(self, country):
-        """select the file to open, unpack the file, update sliders, if autoUse is checked;  write to workshop file"""
-        league = self.race_box.get()
-        team = self.cars_box.get()
-        weather = self.weather_box.get()
-        game_mode = self.game_mode_box.get()
-
-        ids = self.db.get_ids(league,
-                              country,
-                              weather,
-                              game_mode,
-                              team)
-        setup_db = self.db.setups.get_setup_by_ids(*ids)
-
-        try:
-            self.widgets.sliders = (True, *self.db.setups.get_setup_by_setup_id(setup_db[0][0]))
-        except IndexError:
-            """ if its not in db """
-            print("file not in db")
-            ids = self.db.get_ids(league,
-                                  country,
-                                  weather,
-                                  "Invitational",
-                                  "All Cars")
-            setup_db = self.db.setups.get_setup_by_ids(*ids)
-
-            try:
-                self.widgets.sliders = (True, *self.db.setups.get_setup_by_setup_id(setup_db[0][0]))
-            except IndexError:
-                self.widgets.sliders = (True, *presets_sql.PresetSql().get_preset_by_id(3))
-
-        if self.config.auto_use_track:
-            self.setup.use_setup()
-
-        self.widgets.status_message.set(
-            " %s | %s | (%s) %s [%s]" % (
-                league, team, country, self.tracks.tracks[country], self.widgets.weatherTypes[weather]))

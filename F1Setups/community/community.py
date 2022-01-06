@@ -1,15 +1,16 @@
 import tkinter
 import tkinter.ttk
-import grid_widgets
 
 from .commands import *
 
+from grid_widgets import GridWidgets
 from DB.server_postgres import *
 from DB.local_sqlite3 import *
 
 
 class Community:
     def __init__(self):
+        self.grid_widgets = GridWidgets()
         self.window = tkinter.Tk()
         self.window.title('Community')
 
@@ -73,10 +74,10 @@ class Community:
         tv.heading(col, command=lambda: self.treeview_sort_column(tv, col, not reverse))
 
     def grid(self):
-        box1 = grid_widgets.GridWidgets(increment_horizontal=True)
+        box1 = self.grid_widgets.GridWidgets(increment_horizontal=True)
         box1.grid_box(self.treeview)
 
-        box2 = grid_widgets.GridWidgets(startrow=(box1.row + 1), increment_horizontal=True)
+        box2 = self.grid_widgets.GridWidgets(startrow=(box1.row + 1), increment_horizontal=True)
         for button in self.buttons:
             box2.grid_box(button, rowspan=3)
 

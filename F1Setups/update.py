@@ -4,7 +4,6 @@ from tracks import Tracks
 import pathlib
 from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
 
-
 INSTALL_PATH = pathlib.Path(__file__).parent.absolute()
 
 
@@ -35,10 +34,10 @@ class Update:
                                             if os.path.isfile(file_path):
                                                 print(file_path)
                                                 ids = self.local_sqlite.get_ids(league,
-                                                                 country,
-                                                                 weather,
-                                                                 game_mode,
-                                                                 team)
+                                                                                country,
+                                                                                weather,
+                                                                                game_mode,
+                                                                                team)
                                                 try:
                                                     setup_db = self.local_sqlite.setups.get_setup_by_ids(*ids)
                                                     setup_id = setup_db[0][0]

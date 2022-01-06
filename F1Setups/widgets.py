@@ -11,6 +11,7 @@ from make_scale import MakeScale
 from slidercounter import SliderCounter
 from jsondata import Json
 from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
+from DB.local_sqlite3.track_sql import TrackSql
 from setup import Setup
 from update import Update
 from events import Events
@@ -236,10 +237,6 @@ class Widgets:
         return team_ids.index(team)
 
     @property
-    def track_id(self):
-        return self.tracks.current_track
-
-    @property
     def game_mode_id(self):
         return self.game_modes[self.game_mode_box.get()]
 
@@ -279,8 +276,10 @@ class Widgets:
 
     @sliders.setter
     def sliders(self, unpacked_setup):
-        """syntax, bool(from database or .bin file) + car setup"""
-        if unpacked_setup[0] is True:
+        print(' - - - - - - - - setting sliders - - - - - - - - ')
+        print(unpacked_setup)
+        database_setup = unpacked_setup[0]
+        if database_setup is True:
             i = 8
             for slider in self.sliders:
                 if slider.offset != 1:
@@ -291,11 +290,14 @@ class Widgets:
                 else:
                     slider.set(unpacked_setup[i])
                 i += 1
-            print('loaded from db', unpacked_setup)
+            print('loaded : ', unpacked_setup[1:8])
+            print('sliders values : ', unpacked_setup[8:])
         else:
+            # .bin file
             create_slider = SliderCounter(unpacked_setup)
             for slider in self.sliders:
                 create_slider.set_slider_value(slider)
+        print(" - - - - - - - - - - - - - - - - ")
 
     def create_combobox(self, _values):
         return Combobox(
@@ -358,26 +360,35 @@ class Widgets:
         self.c.grid_rowconfigure(11, weight=1)
 
     def use_cmd(self):
+        print(" - - - - - - - - using  - - - - - - - - ")
         self.setup.use_setup()
         self.status_message.set("Using current setup")
+        print(" - - - - - - - - - - - - - - - - ")
 
     def open_cmd(self):
+        print(" - - - - - - - - opening file - - - - - - - - ")
         try:
             path = self.setup.open_setup()
             self.status_message.set(" Opened (" + str(path) + ")")
         except FileNotFoundError:
             self.status_message.set(" Can't find file)")
+        print(" - - - - - - - - - - - - - - - - ")
 
     def use_save_cmd(self):
         self.setup.use_setup()
         self.save_cmd()
 
     def save_cmd(self):
+        print(" - - - - - - - - saving  - - - - - - - - ")
         car_setup = self.create_car_setup_from_widgets()
+        print("car setup info: ", car_setup.info)
+        print("car setup values: ", car_setup.values)
         self.setup.save_setup(car_setup)
         self.status_message.set("Saved")
+        print(" - - - - - - - - - - - - - - - - ")
 
     def save_as_cmd(self):
+        print(" - - - - - - - - save as  - - - - - - - - ")
         try:
             path = self.setup.save_as_setup()
             self.status_message.set("Saved: " + path)
@@ -385,11 +396,13 @@ class Widgets:
             self.status_message.set("File not found")
 
     def upload(self):
+        print(" - - - - - - - - uploading  - - - - - - - - ")
         car_setup = self.create_car_setup_from_widgets()
         print(car_setup.info)
         commands.Commands().upload(car_setup)
 
     def toggle_track_list(self, sort_bool):
+        print(" - - - - - - - - sorting track list  - - - - - - - - ")
         """sort track list based on calendar or Alphabet"""
         # save new value to config file
         self.config.sort_tracks = sort_bool
@@ -410,7 +423,7 @@ class Widgets:
             self.track_box.itemconfigure(i, background='#576366', fg=self.fg)
 
     def set_starting_values(self):
-        """set widgets default values"""
+        print(" - - - - - - - - set starting values  - - - - - - - - ")
         self.track_box.selection_set(0)
         self.race_box.set(self.config.race)
         self.cars_box['values'] = self.raceSettings[self.config.race]
@@ -422,6 +435,7 @@ class Widgets:
         self.top_menu.set_starting_values()
 
     def toggle_race_sliders(self, race):
+        print(" - - - - - - - - toggle race sliders  - - - - - - - - ")
         on_throttle = 'enabled'
         off_throttle = 'enabled'
         brake_pressure = 'enabled'
@@ -448,12 +462,19 @@ class Widgets:
         self.ramp_differential_Scale.config(state=ramp_differential)
 
     def create_car_setup_from_widgets(self):
+        print("... creating car setup from widgets")
+        current_track = Config().current_track
         league_id = league_sql.LeagueSql().get_id_from_name(self.league_id)
+        track_id = TrackSql().get_track_id_by_country(current_track)
+        print("self.config.current_track", current_track)
+        print("track id", track_id)
+        team_id = self.db.teams.get_team_id(self.cars_box.get(), league_id)
+
         car_setup = CarSetup(
             league_id=league_id,
             save_name=" save name test",
-            team_id=self.db.teams.get_team_id(self.cars_box.get(), league_id),
-            track_id=track_sql.TrackSql().get_track_id_by_country(self.track_id),
+            team_id=team_id,
+            track_id=track_id,
             game_mode_id=self.game_mode_id,
             weather_id=self.weather_id,
 

@@ -14,7 +14,7 @@ class Json:
 
     @staticmethod
     def load_json_data():
-        with open('F1Setups/data.json', encoding='utf-8') as json_file:
+        with open('data.json', encoding='utf-8') as json_file:
             jf = json.load(json_file)
         json_file.close()
         return jf

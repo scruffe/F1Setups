@@ -15,10 +15,12 @@ class Config:
         self._steam_path = self.config['steam_path']
         self._workshop_dir = self.config['workshop_dir']
         self._workshop_file = ""
+        self._current_track = self.config['current_track']
         self._sort_tracks = self.config['sort_tracks']
         self._auto_use_changes = self.config['auto_use_changes']
         self._auto_save_changes = self.config['auto_save_changes']
         self._auto_use_track = self.config['auto_use_track']
+        self._order_tracks = self.config['order_tracks']
 
         self.theme = self.config['theme']
         self.default_setups = self.config['default_setups']
@@ -34,14 +36,14 @@ class Config:
 
     @staticmethod
     def load():
-        with open('F1Setups/config.json') as f:
+        with open('config.json') as f:
             config_f = json.load(f)
         f.close()
         return config_f
 
     def dump(self, key, value):
         self.config[key] = value
-        with open("F1Setups/config.json", "w") as f:
+        with open("config.json", "w") as f:
             json.dump(self.config, f, indent=4)
         f.close()
 
@@ -155,3 +157,21 @@ class Config:
     def auto_use_track(self, value):
         self._auto_use_track = value
         self.dump('auto_use_track', value)
+
+    @property
+    def order_tracks(self):
+        return self._order_tracks
+
+    @auto_use_track.setter
+    def order_tracks(self, v):
+        self._order_tracks = v
+        self.dump('order_tracks', v)
+
+    @property
+    def current_track(self):
+        return self._current_track
+
+    @current_track.setter
+    def current_track(self, v: str):
+        self._current_track = v
+        self.dump('current_track', v)
