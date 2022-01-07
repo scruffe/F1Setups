@@ -1,16 +1,12 @@
-# from tkinter import *
-import pathlib
-
+from pathlib import Path
 from tkinter import Tk
-from tkinter import ttk
+from tkinter.ttk import Style
 
 from carsetup import CarSetup
-from widgets import Widgets
-from events import Events
+from widgets.widgets import Widgets
+from widgets.events import Events
 from setup import Setup
-
 from config import Config
-
 from tracks import Tracks
 from DB.local_sqlite3.sqlite_create import sqlite_create
 from jsondata import Json
@@ -24,7 +20,7 @@ def use_theme():
     root.tk.call('lappend', 'auto_path', str(INSTALL_PATH))
     root.tk.call('package', 'require', config.theme)
     # s.theme_names('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-    ttk.Style().theme_use(config.theme)
+    Style().theme_use(config.theme)
 
 
 def create_local_db():
@@ -53,7 +49,10 @@ def create_local_db():
 
 
 if __name__ == "__main__":
-    INSTALL_PATH = pathlib.Path(__file__).parent.absolute()
+
+
+
+    INSTALL_PATH = Path(__file__).parent.absolute()
     root = Tk()
     root.title('F1 Setup editor')
     root.iconbitmap(str(INSTALL_PATH) + '/pog.ico')
@@ -61,6 +60,11 @@ if __name__ == "__main__":
     SetupDir = str(INSTALL_PATH) + "/Setups/"
 
     config = Config()
+
+    if config.install_db:
+        create_local_db()
+        config.install_db = False
+
     tracks = Tracks()
     widgets = Widgets(root)
     setup = Setup(widgets)

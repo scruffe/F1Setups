@@ -1,10 +1,10 @@
-import os
+from os import path
 from tkinter import filedialog
 from tracks import Tracks
-import pathlib
+from pathlib import Path
 from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
 
-INSTALL_PATH = pathlib.Path(__file__).parent.absolute()
+INSTALL_PATH = Path(__file__).parent.absolute()
 
 
 class Update:
@@ -18,20 +18,20 @@ class Update:
         setup_dir = filedialog.askdirectory(initialdir=INSTALL_PATH, title="Select setup directory")
         """find files in dir, check if its already in db, load file from dir, write to db"""
         for league in list(self.widgets.raceSettings):
-            path = setup_dir + "/" + league
-            if os.path.isdir(path):
+            p = setup_dir + "/" + league
+            if path.isdir(p):
                 for team in self.widgets.raceSettings[league]:
-                    team_path = path + "/" + team
-                    if os.path.isdir(team_path):
+                    team_path = p + "/" + team
+                    if path.isdir(team_path):
                         for weather in list(self.widgets.weatherTypes):
                             weather_path = team_path + "/" + weather
-                            if os.path.isdir(weather_path):
+                            if path.isdir(weather_path):
                                 for game_mode in self.widgets.game_modes:
                                     game_mode_path = weather_path + "/" + game_mode
-                                    if os.path.isdir(game_mode_path):
+                                    if path.isdir(game_mode_path):
                                         for country in Tracks().tracks:
                                             file_path = game_mode_path + "/" + country + ".bin"
-                                            if os.path.isfile(file_path):
+                                            if path.isfile(file_path):
                                                 print(file_path)
                                                 ids = self.local_sqlite.get_ids(league,
                                                                                 country,

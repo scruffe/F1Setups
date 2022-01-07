@@ -3,7 +3,7 @@ import tkinter.ttk
 
 from .commands import *
 
-from grid_widgets import GridWidgets
+from widgets.grid_widgets import GridWidgets
 from DB.server_postgres import *
 from DB.local_sqlite3 import *
 

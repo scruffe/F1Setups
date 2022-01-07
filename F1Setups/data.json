@@ -13,47 +13,23 @@
         "Canada": "Circuit Gilles-Villeneuve",
         "China": "Shanghai International Circuit",
         "France": "Circuit Paul Ricard",
+        "Hockenheim": "ITS NOT EVEN SHIPPED",
         "Hungary": "Hungaroring",
-        "Italy": "Autodromo Nazionale Monza",
+        "Italy - Monza": "Autodromo Nazionale Monza",
+        "Italy - Imola": "Imola Circuit",
         "Japan": "Suzuka International Racing Course",
         "Japan Short": "Suzuka International Racing Course (Short)",
         "Monaco": "Circuit de Monaco",
         "México": "Autódromo Hermanos Rodríguez",
+        "Portugal": "Portimão Circuit",
         "Russia": "Sochi Autodrom",
+        "Saudi Arabia": "Jeddah Corniche Circuit",
         "Singapore": "Marina Bay Street Circuit",
         "Spain": "Circuit de Barcelona-Catalunya",
         "The Netherlands": "Circuit Zandvoort",
         "USA": "Circuit of The Americas",
         "USA Short": "Circuit of The Americas (Short)",
         "Vietnam": "Hanoi Circuit"
-    },
-    "tracks_season": {
-        "Australia": "Melbourne Grand Prix Circuit",
-        "Bahrain": "Bahrain International Circuit",
-        "Bahrain Short": "Bahrain International Circuit (Short)",
-        "Vietnam": "Hanoi Circuit",
-        "China": "Shanghai International Circuit",
-        "The Netherlands": "Circuit Zandvoort",
-        "Spain": "Circuit de Barcelona-Catalunya",
-        "Monaco": "Circuit de Monaco",
-        "Azerbaijan": "Baku City Circuit",
-        "Canada": "Circuit Gilles-Villeneuve",
-        "France": "Circuit Paul Ricard",
-        "Austria": "Spielberg" ,
-        "Britain": "Silverstone Circuit",
-        "Britain Short": "Silverstone Circuit (Short)",
-        "Hungary": "Hungaroring",
-        "Belgium": "Circuit De Spa-Francorchamps",
-        "Italy": "Autodromo Nazionale Monza",
-        "Singapore": "Marina Bay Street Circuit",
-        "Russia": "Sochi Autodrom",
-        "Japan": "Suzuka International Racing Course",
-        "Japan Short": "Suzuka International Racing Course (Short)",
-        "USA": "Circuit of The Americas",
-        "USA Short": "Circuit of The Americas (Short)",
-        "México": "Autódromo Hermanos Rodríguez",
-        "Brazil": "Autódromo José Carlos Pace",
-        "Abu Dhabi": "Yas Marina Circuit"
     },
     "tracks_id": {
         "Australia": "Melbourne Grand Prix Circuit",
@@ -67,7 +43,7 @@
         "Hockenheim": "ITS NOT EVEN SHIPPED",
         "Hungary": "Hungaroring",
         "Belgium": "Circuit De Spa-Francorchamps",
-        "Italy": "Autodromo Nazionale Monza",
+        "Italy - Monza": "Autodromo Nazionale Monza",
         "Singapore": "Marina Bay Street Circuit",
         "Japan": "Suzuka International Racing Course",
         "Abu Dhabi": "Yas Marina Circuit",
@@ -82,9 +58,28 @@
         "USA Short": "Circuit of The Americas (Short)",
         "Japan Short": "Suzuka International Racing Course (Short)",
         "Vietnam": "Hanoi Circuit",
-        "The Netherlands": "Circuit Zandvoort"
+        "The Netherlands": "Circuit Zandvoort",
+        "Italy - Imola": "Imola Circuit",
+        "Portugal": "Portimão Circuit",
+        "Saudi Arabia": "Jeddah Corniche Circuit"
     },
     "cars" : {
+        "F1 2021": [
+            "All Cars",
+            "Ferrari",
+            "Alpine",
+            "Red Bull",
+            "McLaren",
+            "Mercedes",
+            "AlphaTauri",
+            "Williams",
+            "Aston Martin",
+            "Alfa Romeo",
+            "Haas"
+        ],
+        "F2 2021": [
+            "All Cars"
+        ],
         "F1 2020": [
             "All Cars",
             "Ferrari",
@@ -153,8 +148,7 @@
     },
     "weather":  {
         "Dry": "Dry setup",
-        "Wet": "Wet setup",
-        "Mixed": "Mixed setup"
+        "Wet": "Wet setup"
     },
     "game_modes": {
         "Weekly Event": 0,
@@ -172,6 +166,9 @@
         "Preset 3": "Balanced/Default",
         "Preset 4": "Increased Topspeed",
         "Preset 5": "Maximum Topspeed"
+    },
+    "game_versions": {
+        "F1 2021": "F1 2021",
+        "F1 2020": "F2 2020"
     }
-
 }

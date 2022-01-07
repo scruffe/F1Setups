@@ -164,3 +164,4 @@ Thumbs.db #thumbnail cache on Windows
 
 # End of https://www.toptal.com/developers/gitignore/api/python,vscode
 /F1Setups/DB/local_sqlite3/data.sqbpro
+/F1Setups/DB/local_sqlite3/data.db-journal

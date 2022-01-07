@@ -1,5 +1,5 @@
-import os
-import struct
+from os import path, makedirs
+from struct import pack, unpack, error
 from tkinter import filedialog, messagebox
 from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
 from DB.local_sqlite3.track_sql import TrackSql
@@ -102,9 +102,9 @@ class Setup:
 
     def set_file_size(self, filename):
         """all information in the setup is static except for the length of the save name"""
-        if os.path.isfile(filename):
+        if path.isfile(filename):
             min_size = 748
-            file_size = os.path.getsize(filename)
+            file_size = path.getsize(filename)
             name_size = file_size - min_size
             self.size = name_size
         else:
@@ -122,7 +122,7 @@ class Setup:
         self.size = len(self.save_name)
 
         # self.setupStructPackingFormat = self.get_packing_format()
-        packed_setup = struct.pack(
+        packed_setup = pack(
             self.packing_format,
             b(self.header), 0, 1, 0, 32, 0, 7,
             # \x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x07
@@ -180,38 +180,38 @@ class Setup:
         self.db.save_setup_to_db(car_setup)
 
     def save_as_setup(self):
-        path = filedialog.asksaveasfilename(initialdir=INSTALL_PATH, title="Select file",
-                                            defaultextension=".bin",
-                                            filetypes=(("bin files", "*.bin"), ("all files", "*.*")))
-        self.write_setup(path)
-        return path
+        p = filedialog.asksaveasfilename(initialdir=INSTALL_PATH, title="Select file",
+                                         defaultextension=".bin",
+                                         filetypes=(("bin files", "*.bin"), ("all files", "*.*")))
+        self.write_setup(p)
+        return p
 
-    def unpack_setup(self, path):
+    def unpack_setup(self, p):
         try:
-            self.set_file_size(path)
-            setup_file = open(path, "rb")
-            unpacked_setup = struct.unpack(self.packing_format, setup_file.read())
+            self.set_file_size(p)
+            setup_file = open(p, "rb")
+            unpacked_setup = unpack(self.packing_format, setup_file.read())
             setup_file.close()
             return unpacked_setup
-        except struct.error:
+        except error:
             messagebox.showerror("error", "can't open")
 
     def open_setup(self):
-        path = filedialog.askopenfilename(initialdir=INSTALL_PATH, title="Select setup file",
-                                          filetypes=(("bin files", "*.bin"), ("all files", "*.*")))
-        self.load_setup_file(path)
-        return path
+        p = filedialog.askopenfilename(initialdir=INSTALL_PATH, title="Select setup file",
+                                       filetypes=(("bin files", "*.bin"), ("all files", "*.*")))
+        self.load_setup_file(p)
+        return p
 
-    def load_setup_file(self, path):
-        self.widgets.sliders = self.unpack_setup(path)
+    def load_setup_file(self, p):
+        self.widgets.sliders = self.unpack_setup(p)
         if self.config.auto_use_track:
             self.use_setup()
 
     @staticmethod
-    def check_dir(path):
+    def check_dir(p):
         access_rights = 0o755
-        if not os.path.isdir(path):
+        if not path.isdir(p):
             try:
-                os.makedirs(path, access_rights)
+                makedirs(p, access_rights)
             except OSError:
                 print("Creation of the directory %s failed" % path)

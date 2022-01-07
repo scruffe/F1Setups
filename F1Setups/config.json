@@ -1,6 +1,8 @@
 {
+    "install_db": false,
     "steam_path": "C:\\Program Files (x86)\\Steam",
-    "workshop_dir": "D:\\SteamLibrary\\steamapps\\workshop\\content\\1080110",
+    "workshop_dir": "D:\\SteamLibrary\\steamapps\\workshop\\content\\1134570",
+    "2020_workshop_dir": "D:\\SteamLibrary\\steamapps\\workshop\\content\\1080110",
     "sort_tracks": true,
     "auto_use_changes": true,
     "auto_save_changes": false,
@@ -9,7 +11,7 @@
     "theme": "awdark",
     "current_track": "Abu Dhabi",
     "default_setups": "All Cars",
-    "race_box": "F1 2020",
+    "race": "F1 2020",
     "cars_box": "All Cars",
     "weather_box": "Dry",
     "game_mode_box": "Weekly Event"
