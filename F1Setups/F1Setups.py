@@ -49,9 +49,6 @@ def create_local_db():
 
 
 if __name__ == "__main__":
-
-
-
     INSTALL_PATH = Path(__file__).parent.absolute()
     root = Tk()
     root.title('F1 Setup editor')

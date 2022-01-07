@@ -15,7 +15,6 @@ class Setup:
         # self.max_length_save_name = 128
         self.tracks = Tracks()
         self.widgets = widgets
-        self.config = Config()
         self.db = LocalSqlite3()
 
         self.header = 'F1CS'
@@ -173,8 +172,11 @@ class Setup:
         file.close()
 
     def use_setup(self):
-        self.config.workshop_file = self.config.get_workshop_race_id(self.widgets.race_box.get())
-        self.write_setup(self.config.workshop_file)
+        print(Config().get_workshop_race_id(self.widgets.race_box.get()))
+        config = Config()
+        config.workshop_file = config.get_workshop_race_id(self.widgets.race_box.get())
+        print("sdffffffff", config.workshop_file)
+        self.write_setup(config.workshop_file)
 
     def save_setup(self, car_setup):
         self.db.save_setup_to_db(car_setup)

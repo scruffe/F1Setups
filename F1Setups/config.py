@@ -1,4 +1,5 @@
-from json import load, dump, dumps
+import tkinter
+from json import load, dump
 from os import path
 import winreg
 import re
@@ -14,6 +15,7 @@ class Config:
         self.config = self.load()
         self._steam_path = self.config['steam_path']
         self._workshop_dir = self.config['workshop_dir']
+        self._2020_workshop_dir = self.config['2020_workshop_dir']
         self._workshop_file = ""
         self._current_track = self.config['current_track']
         self._sort_tracks = self.config['sort_tracks']
@@ -29,13 +31,16 @@ class Config:
         self.weather = self.config['weather_box']
         self.game_mode = self.config['game_mode_box']
 
-        #self.f1_2020_steamID = "1080110"
-        # self.scruffe_f1_workshop_id = "2403338074"
-        self.f1_2020_steamID = "1134570"
-        self.scruffe_f1_workshop_id = "2710709065"
+        self.f1_2021_steamID = "1134570"
+        self.f1_2020_steamID = "1080110"
 
-        self.scruffe_f2_workshop_id = "2404403390"
-        self.scruffe_classic_workshop_id = "2404433709"
+        self.scruffe_f1_21_workshop_id = "2710709065"
+        self.scruffe_f1_20_workshop_id = "2403338074"
+
+        self.scruffe_f2_21_workshop_id = ""
+        self.scruffe_f2_20_workshop_id = "2404403390"
+
+        self.scruffe_classic_20_workshop_id = "2404433709"
 
         self._install_db = self.config["install_db"]
 
@@ -82,11 +87,16 @@ class Config:
 
     @property
     def workshop_dir(self):
-        return self._workshop_dir
+        race = Config().race
+        if race == "F1 2021" or race == "F2 2021":
+            workshop_dir = self._workshop_dir
+        else:
+            workshop_dir = self._2020_workshop_dir
+        return workshop_dir
 
     @workshop_dir.setter
     def workshop_dir(self, _path):
-        if _path is None:
+        if _path is None or path is "":
             if not path.isdir(self.steam_path):
                 self.steam_path = None
             steam_path = self.steam_path
@@ -94,17 +104,32 @@ class Config:
             with open(library_folders) as f:
                 libraries = [steam_path]
                 lf = f.read()
+
                 libraries.extend([fn.replace("\\\\", "\\") for fn in
                                   re.findall(r'^\s*"\d*"\s*"([^"]*)"', lf, re.MULTILINE)])
                 for library in libraries:
-                    appmanifest = library + r"\steamapps\appmanifest_" + self.f1_2020_steamID + ".ACF"
+                    appmanifest = library + r"\steamapps\appmanifest_" + self.f1_2021_steamID + ".ACF"
                     if path.isfile(appmanifest):
                         with open(appmanifest) as ff:
                             ff.read()
-                            _path = library + "/steamapps/workshop/content/" + self.f1_2020_steamID
+                            _path = library + "/steamapps/workshop/content/" + self.f1_2021_steamID
                         ff.close()
             f.close()
+        if _path is None or path is "":
+            _path = tkinter.filedialog.askdirectory(title="select f12021 SteamLibrary folder, eg D:/SteamLibrary") + "/steamapps/workshop/content/"
+            if path.isdir(_path + self.f1_2020_steamID):
+                self._2020_workshop_dir = _path + self.f1_2020_steamID
+            else:
+                messagebox.showerror("Error", "Cant find f12020 SteamLibrary")
+            if path.isdir(_path + self.f1_2021_steamID):
+                _path = _path + self.f1_2021_steamID
+            else:
+                messagebox.showerror("Error", "Cant find f12021 SteamLibrary")
+
+            self.dump('2020_workshop_dir', self._2020_workshop_dir)
+
         self._workshop_dir = _path
+        print(self._workshop_dir)
         self.dump('workshop_dir', _path)
 
     @property
@@ -112,19 +137,33 @@ class Config:
         return self._workshop_file
 
     @workshop_file.setter
-    def workshop_file(self, workshop_race_id):
-        if not path.isdir(self.workshop_dir):
+    def workshop_file(self, args):
+        workshop_path = args[0]
+        race_id = args[1]
+        if workshop_path is None or workshop_path is "":
             self.workshop_dir = None
-        self._workshop_file = self._workshop_dir + "/" + workshop_race_id + "/ugcitemcontent.bin"
-        self.subscribe(self._workshop_file, workshop_race_id)
+            workshop_path = self.workshop_dir
+        self._workshop_file = workshop_path + "/" + race_id + "/ugcitemcontent.bin"
+        if path.isdir(workshop_path + "/" + race_id):
+            self.subscribe(self._workshop_file, race_id)
 
     def get_workshop_race_id(self, race):
-        race_id = self.scruffe_f1_workshop_id
-        if race == "classic":
-            race_id = self.scruffe_classic_workshop_id
+        if race == "F1 2021":
+            _path = self._workshop_dir
+            race_id = self.scruffe_f1_21_workshop_id
+        elif race == "F2 2021":
+            _path = self._workshop_dir
+            race_id = self.scruffe_f2_21_workshop_id
+        elif race == "F1 2020":
+            _path = self._2020_workshop_dir
+            race_id = self.scruffe_f1_20_workshop_id
+        elif race == "classic":
+            _path = self._2020_workshop_dir
+            race_id = self.scruffe_classic_20_workshop_id
         elif race == "F2 2019" or race == "F2 2020":
-            race_id = self.scruffe_f2_workshop_id
-        return race_id
+            _path = self._2020_workshop_dir
+            race_id = self.scruffe_f2_20_workshop_id
+        return _path, race_id
 
     @property
     def sort_tracks(self):

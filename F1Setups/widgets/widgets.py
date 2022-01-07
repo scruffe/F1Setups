@@ -27,7 +27,6 @@ class Widgets:
         self.update = Update(self, self.setup)
         self.db = LocalSqlite3()
         self.tracks = Tracks()
-        self.config = Config()
 
         self.top_menu = TopMenu(self, root)
 
@@ -128,6 +127,7 @@ class Widgets:
         self.ramp_differential_Scale = scales.make("Ramp differential", from_=50, to=70)
         self.fuel_load_Scale = scales.make("Fuel load", from_=5, to=110)
         self.grid()
+        self.enable_free_widgets()
 
     @property
     def boxes(self):
@@ -307,7 +307,7 @@ class Widgets:
             self.c,
             justify="center",
             values=_values,
-            state='readonly')
+            state="readonly")
 
     def create_checkbox(self, text, variable, command=None):
         return Checkbutton(
@@ -408,7 +408,7 @@ class Widgets:
         print(" - - - - - - - - sorting track list  - - - - - - - - ")
         """sort track list based on calendar or Alphabet"""
         # save new value to config file
-        self.config.sort_tracks = sort_bool
+        Config().sort_tracks = sort_bool
 
         # update track list
         self.tracks.toggle_track_sort(sort_bool)
@@ -428,11 +428,11 @@ class Widgets:
     def set_starting_values(self):
         print(" - - - - - - - - set starting values  - - - - - - - - ")
         self.track_box.selection_set(0)
-        self.race_box.set(self.config.race)
-        self.cars_box['values'] = self.raceSettings[self.config.race]
-        self.cars_box.set(self.config.cars)
-        self.weather_box.set(self.config.weather)
-        self.game_mode_box.set(self.config.game_mode)
+        self.race_box.set(Config().race)
+        self.cars_box['values'] = self.raceSettings[Config().race]
+        self.cars_box.set(Config().cars)
+        self.weather_box.set(Config().weather)
+        self.game_mode_box.set(Config().game_mode)
         self.preset_box.set("Load Preset")
         self.status_message.set('')
         self.top_menu.set_starting_values()
@@ -510,3 +510,12 @@ class Widgets:
     @staticmethod
     def open_url(url):
         open_new(url)
+
+    def enable_free_widgets(self):
+        self.race_box.configure(state="readonly")
+        self.preset_box.configure(state='readonly')
+
+    def premium(self):
+        """enables premium content"""
+
+
