@@ -1,6 +1,6 @@
 from tkinter import IntVar, W, E, HORIZONTAL, DoubleVar
 from tkinter.ttk import Separator, Label
-from widgets.slider.limiter import Limiter
+from F1Setups.widgets.slider.limiter import Limiter
 
 
 class MakeScale:

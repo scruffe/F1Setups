@@ -1,7 +1,7 @@
-from DB.local_sqlite3 import presets_sql
-from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
-from config import Config
-from tracks import Tracks
+from F1Setups.DB.local_sqlite3 import presets_sql
+from F1Setups.DB.local_sqlite3.local_sqlite3 import LocalSqlite3
+from F1Setups.config.config import Config
+from F1Setups.helpers.tracks import Tracks
 
 
 class Events:

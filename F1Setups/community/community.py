@@ -3,9 +3,9 @@ import tkinter.ttk
 
 from .commands import *
 
-from widgets.grid_widgets import GridWidgets
-from DB.server_postgres import *
-from DB.local_sqlite3 import *
+from F1Setups.widgets.grid_widgets import GridWidgets
+from F1Setups.DB.server_postgres import *
+from F1Setups.DB.local_sqlite3 import *
 
 
 class Community:

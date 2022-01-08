@@ -3,7 +3,7 @@ import sqlite3
 
 class LeagueSql:
     def __init__(self):
-        self.conn = sqlite3.connect('DB/local_sqlite3/data.db')
+        self.conn = sqlite3.connect('F1Setups/DB/local_sqlite3/data.db')
         self.c = self.conn.cursor()
         self.create_table()
 

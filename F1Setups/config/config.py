@@ -46,14 +46,14 @@ class Config:
 
     @staticmethod
     def load():
-        with open('config.json') as f:
+        with open('F1Setups/config/config.json') as f:
             config_f = load(f)
         f.close()
         return config_f
 
     def dump(self, key, value):
         self.config[key] = value
-        with open("config.json", "w") as f:
+        with open("F1Setups/config/config.json", "w") as f:
             dump(self.config, f, indent=4)
         f.close()
 
@@ -140,7 +140,7 @@ class Config:
     def workshop_file(self, args):
         workshop_path = args[0]
         race_id = args[1]
-        if workshop_path is None or workshop_path is "":
+        if workshop_path is None or workshop_path == "":
             self.workshop_dir = None
             workshop_path = self.workshop_dir
         self._workshop_file = workshop_path + "/" + race_id + "/ugcitemcontent.bin"

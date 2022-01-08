@@ -1,8 +1,8 @@
 from os import path
 from tkinter import filedialog
-from tracks import Tracks
+from F1Setups.helpers.tracks import Tracks
 from pathlib import Path
-from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
+from F1Setups.DB.local_sqlite3.local_sqlite3 import LocalSqlite3
 
 INSTALL_PATH = Path(__file__).parent.absolute()
 

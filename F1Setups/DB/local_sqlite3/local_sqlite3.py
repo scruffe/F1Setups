@@ -1,14 +1,21 @@
-from . import *
+from F1Setups.DB.local_sqlite3.setup_sql import SetupSql
+from F1Setups.DB.local_sqlite3.league_sql import LeagueSql
+from F1Setups.DB.local_sqlite3.track_sql import TrackSql
+from F1Setups.DB.local_sqlite3.weather_sql import WeatherSql
+from F1Setups.DB.local_sqlite3.team_sql import TeamSql
+from F1Setups.DB.local_sqlite3.game_mode_sql import GameModeSql
+
+# from F1Setups.DB.local_sqlite3 import *
 
 
 class LocalSqlite3:
     def __init__(self):
-        self.setups = setup_sql.SetupSql()
-        self.leagues = league_sql.LeagueSql()
-        self.tracks = track_sql.TrackSql()
-        self.weathers = weather_sql.WeatherSql()
-        self.teams = team_sql.TeamSql()
-        self.game_modes = game_mode_sql.GameModeSql()
+        self.setups = SetupSql()
+        self.leagues = LeagueSql()
+        self.tracks = TrackSql()
+        self.weathers = WeatherSql()
+        self.teams = TeamSql()
+        self.game_modes = GameModeSql()
 
     def save_setup_to_db(self, car_setup):
         print(

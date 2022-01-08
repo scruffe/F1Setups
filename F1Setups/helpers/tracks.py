@@ -1,6 +1,6 @@
-from jsondata import Json
-from config import Config
-from DB.local_sqlite3.track_sql import TrackSql
+from F1Setups.data.jsondata import Json
+from F1Setups.config.config import Config
+from F1Setups.DB.local_sqlite3.track_sql import TrackSql
 
 
 class Tracks:

@@ -1,11 +1,9 @@
 import sqlite3
 
-from . import *
-from ..local_sqlite3 import *
+from F1Setups.DB.local_sqlite3 import track_sql, user_sql, game_mode_sql, league_sql, team_sql, weather_sql, presets_sql
+from F1Setups.DB.local_sqlite3.sqlite_create import league, team, track, game_mode, user
 
-#from ....jsondata import Json
-
-conn = sqlite3.connect('DB/local_sqlite3/data.db')
+conn = sqlite3.connect('F1Setups/DB/local_sqlite3/data.db')
 
 c = conn.cursor()
 
@@ -15,8 +13,6 @@ game_mode_table = game_mode_sql.GameModeSql()
 league_table = league_sql.LeagueSql()
 team_table = team_sql.TeamSql()
 weather_table = weather_sql.WeatherSql()
-
-#json = Json()
 
 
 def get_joined():

@@ -1,6 +1,6 @@
-from DB.server_postgres import *
-from carsetup import CarSetup
-from DB.local_sqlite3 import setup_sql
+from F1Setups.DB.server_postgres import *
+from F1Setups.helpers.carsetup import CarSetup
+from F1Setups.DB.local_sqlite3 import setup_sql
 
 
 class Commands:

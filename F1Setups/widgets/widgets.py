@@ -2,22 +2,22 @@ from tkinter import N, W, E, S, StringVar, Listbox, END
 from tkinter.ttk import Combobox, Frame, Label, Checkbutton, Button, LabelFrame
 from webbrowser import open_new
 
-from DB.local_sqlite3 import league_sql
+from F1Setups.DB.local_sqlite3 import league_sql
 
-from carsetup import CarSetup
-from community import commands
-from widgets.grid_widgets import GridWidgets
-from widgets.slider.make_scale import MakeScale
-from widgets.slider.slidercounter import SliderCounter
-from jsondata import Json
-from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
-from DB.local_sqlite3.track_sql import TrackSql
-from setup import Setup
-from update import Update
-from widgets.events import Events
-from tracks import Tracks
-from config import Config
-from widgets.top_menu import TopMenu
+from F1Setups.helpers.carsetup import CarSetup
+#  from F1Setups.community import commands
+from F1Setups.widgets.grid_widgets import GridWidgets
+from F1Setups.widgets.slider.make_scale import MakeScale
+from F1Setups.widgets.slider.slidercounter import SliderCounter
+from F1Setups.data.jsondata import Json
+from F1Setups.DB.local_sqlite3.local_sqlite3 import LocalSqlite3
+from F1Setups.DB.local_sqlite3.track_sql import TrackSql
+from F1Setups.helpers.setup import Setup
+from F1Setups.helpers.update import Update
+from F1Setups.widgets.events import Events
+from F1Setups.helpers.tracks import Tracks
+from F1Setups.config.config import Config
+from F1Setups.widgets.top_menu import TopMenu
 
 
 class Widgets:
@@ -402,7 +402,7 @@ class Widgets:
         print(" - - - - - - - - uploading  - - - - - - - - ")
         car_setup = self.create_car_setup_from_widgets()
         print(car_setup.info)
-        commands.Commands().upload(car_setup)
+        # commands.Commands().upload(car_setup)
 
     def toggle_track_list_order(self, sort_bool):
         print(" - - - - - - - - sorting track list  - - - - - - - - ")

@@ -1,11 +1,11 @@
 from os import path, makedirs
 from struct import pack, unpack, error
 from tkinter import filedialog, messagebox
-from DB.local_sqlite3.local_sqlite3 import LocalSqlite3
-from DB.local_sqlite3.track_sql import TrackSql
+from F1Setups.DB.local_sqlite3.local_sqlite3 import LocalSqlite3
+from F1Setups.DB.local_sqlite3.track_sql import TrackSql
 import pathlib
-from tracks import Tracks
-from config import Config
+from F1Setups.helpers.tracks import Tracks
+from F1Setups.config.config import Config
 
 INSTALL_PATH = pathlib.Path(__file__).parent.absolute()
 

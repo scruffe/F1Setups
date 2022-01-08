@@ -1,6 +1,7 @@
 from tkinter import Menu, BooleanVar
-from community import community
-from config import Config
+# from community import community
+from F1Setups.config.config import Config
+
 
 class TopMenu:
     """create menu bar"""
@@ -16,7 +17,7 @@ class TopMenu:
         file_menu.add_command(label="Import", command=self.widgets.open_cmd)
         file_menu.add_command(label="Export as...", command=self.widgets.save_as_cmd)
         file_menu.add_separator()
-        file_menu.add_command(label="Open Community", command=community.Community,
+        file_menu.add_command(label="Open Community",  # command=community.Community,
             state="disabled")
         file_menu.add_command(label="Upload to Community", command=self.widgets.upload,
             state="disabled")
@@ -28,7 +29,8 @@ class TopMenu:
 
         community_menu = Menu(menubar, tearoff=0)
 
-        community_menu.add_command(label="Open community", command=community.Community)
+        community_menu.add_command(label="Open community", # command=community.Community
+                                  )
         community_menu.add_command(label="Upload to Community", command=self.widgets.upload)
 
         menubar.add_cascade(label="Community", menu=community_menu,
