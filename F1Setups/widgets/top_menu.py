@@ -18,9 +18,9 @@ class TopMenu:
         file_menu.add_command(label="Export as...", command=self.widgets.save_as_cmd)
         file_menu.add_separator()
         file_menu.add_command(label="Open Community",  # command=community.Community,
-            state="disabled")
+                              state="disabled")
         file_menu.add_command(label="Upload to Community", command=self.widgets.upload,
-            state="disabled")
+                              state="disabled")
         file_menu.add_separator()
 
         file_menu.add_command(label="Exit", command=root.quit)
@@ -29,12 +29,12 @@ class TopMenu:
 
         community_menu = Menu(menubar, tearoff=0)
 
-        community_menu.add_command(label="Open community", # command=community.Community
-                                  )
+        community_menu.add_command(label="Open community",  # command=community.Community
+                                   )
         community_menu.add_command(label="Upload to Community", command=self.widgets.upload)
 
         menubar.add_cascade(label="Community", menu=community_menu,
-            state="disabled")
+                            state="disabled")
 
         self.order_tracks = BooleanVar()
         self.auto_use_changes = BooleanVar()
@@ -71,13 +71,16 @@ class TopMenu:
 
         root.config(menu=menubar)
 
-    def update_auto_use(self, b: bool):
+    @staticmethod
+    def update_auto_use(b: bool):
         Config().auto_use_changes = b
 
-    def update_auto_save(self, b: bool):
+    @staticmethod
+    def update_auto_save(b: bool):
         Config().auto_save_changes = b
 
-    def update_auto_use_track(self, b: bool):
+    @staticmethod
+    def update_auto_use_track(b: bool):
         Config().auto_use_track = b
 
     def set_starting_values(self):

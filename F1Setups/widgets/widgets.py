@@ -427,15 +427,19 @@ class Widgets:
 
     def set_starting_values(self):
         print(" - - - - - - - - set starting values  - - - - - - - - ")
+        race = Config().race
         self.track_box.selection_set(0)
-        self.race_box.set(Config().race)
-        self.cars_box['values'] = self.raceSettings[Config().race]
+        self.race_box.set(race)
+        self.cars_box['values'] = self.raceSettings[race]
         self.cars_box.set(Config().cars)
         self.weather_box.set(Config().weather)
         self.game_mode_box.set(Config().game_mode)
         self.preset_box.set("Load Preset")
         self.status_message.set('')
         self.top_menu.set_starting_values()
+
+        self.toggle_race_sliders(race)
+        Events(self).show_track_selection()
 
     def toggle_race_sliders(self, race):
         print(" - - - - - - - - toggle race sliders  - - - - - - - - ")

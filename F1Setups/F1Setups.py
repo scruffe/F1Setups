@@ -4,10 +4,7 @@ from tkinter.ttk import Style
 
 from F1Setups.helpers.carsetup import CarSetup
 from F1Setups.widgets.widgets import Widgets
-from F1Setups.widgets.events import Events
-from F1Setups.helpers.setup import Setup
 from F1Setups.config.config import Config
-from F1Setups.helpers.tracks import Tracks
 from F1Setups.DB.local_sqlite3.sqlite_create import sqlite_create
 from F1Setups.data.jsondata import Json
 
@@ -58,54 +55,9 @@ config = Config()
 if config.install_db:
     create_local_db()
     config.install_db = False
-
-Tracks()
-widgets = Widgets(root)
-Setup(widgets)
-
 use_theme()
+Widgets(root).set_starting_values()
 
-event = Events(widgets)
-widgets.set_starting_values()
-widgets.tracks_background_color()
-widgets.toggle_race_sliders(widgets.race_box.get())
 
-event.show_track_selection()
 
 root.mainloop()
-
-
-if __name__ == "__main__":
-    INSTALL_PATH = Path(__file__).parent.absolute()
-    root = Tk()
-    root.title('F1 Setup editor')
-    root.iconbitmap(str(INSTALL_PATH) + '/pog.ico')
-
-    SetupDir = str(INSTALL_PATH) + "/Setups/"
-
-    config = Config()
-
-    if config.install_db:
-        create_local_db()
-        config.install_db = False
-
-    tracks = Tracks()
-    widgets = Widgets(root)
-    setup = Setup(widgets)
-
-    use_theme()
-
-    event = Events(widgets)
-    widgets.set_starting_values()
-    widgets.tracks_background_color()
-    widgets.toggle_race_sliders(widgets.race_box.get())
-
-    event.show_track_selection()
-
-    """"run this first time to populate db"""
-    # server_postgres.create_table.create_tables()
-
-    root.mainloop()
-
-
-

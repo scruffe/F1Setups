@@ -1,13 +1,14 @@
+import tkinter.messagebox
 from os import path, makedirs
 from struct import pack, unpack, error
 from tkinter import filedialog, messagebox
 from F1Setups.DB.local_sqlite3.local_sqlite3 import LocalSqlite3
 from F1Setups.DB.local_sqlite3.track_sql import TrackSql
-import pathlib
+from pathlib import Path
 from F1Setups.helpers.tracks import Tracks
 from F1Setups.config.config import Config
 
-INSTALL_PATH = pathlib.Path(__file__).parent.absolute()
+INSTALL_PATH = Path(__file__).parent.absolute()
 
 
 class Setup:
@@ -167,15 +168,16 @@ class Setup:
     def write_setup(self, filename):
         self.set_file_size(filename)
         packed_setup = self.pack_setup()
-        with open(filename, 'wb') as file:
-            file.write(packed_setup)
-        file.close()
+        try:
+            with open(filename, 'wb') as file:
+                file.write(packed_setup)
+            file.close()
+        except FileNotFoundError:
+            tkinter.messagebox.showerror("error", "No such file or directory: " + filename)
 
     def use_setup(self):
-        print(Config().get_workshop_race_id(self.widgets.race_box.get()))
         config = Config()
         config.workshop_file = config.get_workshop_race_id(self.widgets.race_box.get())
-        print("sdffffffff", config.workshop_file)
         self.write_setup(config.workshop_file)
 
     def save_setup(self, car_setup):
@@ -206,7 +208,7 @@ class Setup:
 
     def load_setup_file(self, p):
         self.widgets.sliders = self.unpack_setup(p)
-        if self.config.auto_use_track:
+        if Config().auto_use_track:
             self.use_setup()
 
     @staticmethod

@@ -37,7 +37,7 @@ class Config:
         self.scruffe_f1_21_workshop_id = "2710709065"
         self.scruffe_f1_20_workshop_id = "2403338074"
 
-        self.scruffe_f2_21_workshop_id = ""
+        self.scruffe_f2_21_workshop_id = "2712074261"
         self.scruffe_f2_20_workshop_id = "2404403390"
 
         self.scruffe_classic_20_workshop_id = "2404433709"
@@ -61,10 +61,10 @@ class Config:
     def subscribe(workshop_file, workshop_race_id):
         if not path.isfile(workshop_file):
             url = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshop_race_id
-            messagebox.showerror(
-                "error",
-                "Not Subscribed to steam workshop, Subscribe to: " + url)
-            webbrowser.open_new(url)
+            if messagebox.askokcancel(
+                    "error",
+                    "Not Subscribed to steam workshop, Subscribe to: " + url + "\n Subscribe?"):
+                webbrowser.open_new(url)
 
     @property
     def steam_path(self):
@@ -96,7 +96,7 @@ class Config:
 
     @workshop_dir.setter
     def workshop_dir(self, _path):
-        if _path is None or path is "":
+        if _path is None or path == "":
             if not path.isdir(self.steam_path):
                 self.steam_path = None
             steam_path = self.steam_path
@@ -115,8 +115,9 @@ class Config:
                             _path = library + "/steamapps/workshop/content/" + self.f1_2021_steamID
                         ff.close()
             f.close()
-        if _path is None or path is "":
-            _path = tkinter.filedialog.askdirectory(title="select f12021 SteamLibrary folder, eg D:/SteamLibrary") + "/steamapps/workshop/content/"
+        if _path is None or path == "":
+            _path = tkinter.filedialog.askdirectory(
+                title="select f12021 SteamLibrary folder, eg D:/SteamLibrary") + "/steamapps/workshop/content/"
             if path.isdir(_path + self.f1_2020_steamID):
                 self._2020_workshop_dir = _path + self.f1_2020_steamID
             else:
@@ -127,9 +128,7 @@ class Config:
                 messagebox.showerror("Error", "Cant find f12021 SteamLibrary")
 
             self.dump('2020_workshop_dir', self._2020_workshop_dir)
-
         self._workshop_dir = _path
-        print(self._workshop_dir)
         self.dump('workshop_dir', _path)
 
     @property
@@ -144,7 +143,9 @@ class Config:
             self.workshop_dir = None
             workshop_path = self.workshop_dir
         self._workshop_file = workshop_path + "/" + race_id + "/ugcitemcontent.bin"
-        if path.isdir(workshop_path + "/" + race_id):
+        if not path.isdir(workshop_path):
+            messagebox.showerror("error", "Cant find game workshop dir")
+        elif not path.isfile(self._workshop_file):
             self.subscribe(self._workshop_file, race_id)
 
     def get_workshop_race_id(self, race):
