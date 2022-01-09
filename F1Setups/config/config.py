@@ -96,7 +96,7 @@ class Config:
 
     @workshop_dir.setter
     def workshop_dir(self, _path):
-        if _path is None or path == "":
+        if _path is None or _path == "":
             if not path.isdir(self.steam_path):
                 self.steam_path = None
             steam_path = self.steam_path
@@ -131,6 +131,9 @@ class Config:
                     return p + steam_id
                 else:
                     messagebox.showerror("Error", f"Cant find {string} SteamLibrary")
+                    return ""
+            else:
+                return p
 
         _path = ask_user_steam_library(_path, "F1 2021", self.f1_2021_steamID)
         self._2020_workshop_dir = ask_user_steam_library(self._2020_workshop_dir, "F1 2020", self.f1_2020_steamID)
