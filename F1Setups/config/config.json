@@ -1,8 +1,8 @@
 {
     "install_db": false,
-    "steam_path": "C:\\Program Files (x86)\\Steam",
-    "workshop_dir": "D:\\\\SteamLibrary/steamapps/workshop/content/1134570",
-    "2020_workshop_dir": "D:\\\\SteamLibrary/steamapps/workshop/content/1080110",
+    "steam_path": "",
+    "workshop_dir": "",
+    "2020_workshop_dir": "",
     "sort_tracks": true,
     "auto_use_changes": true,
     "auto_save_changes": true,
