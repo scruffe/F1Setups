@@ -101,35 +101,43 @@ class Config:
                 self.steam_path = None
             steam_path = self.steam_path
             library_folders = steam_path + r"\steamapps\libraryfolders.vdf"
+
+            """"read the file and find the libraries"""
             with open(library_folders) as f:
-                libraries = [steam_path]
-                lf = f.read()
+                library_file = f.read()
+                pattern = re.compile(
+                    r'"path"[\s]+"(.+)"')  # {"path"+ spaces (1-more) +"+ Any Character Except \n (1-more)+"}
+                matches = pattern.finditer(library_file)
+                for library in matches:
+                    lib_path = library.group(1)
+                    print(lib_path)
 
-                libraries.extend([fn.replace("\\\\", "\\") for fn in
-                                  re.findall(r'^\s*"\d*"\s*"([^"]*)"', lf, re.MULTILINE)])
-                for library in libraries:
-                    appmanifest = library + r"\steamapps\appmanifest_" + self.f1_2021_steamID + ".ACF"
-                    if path.isfile(appmanifest):
-                        with open(appmanifest) as ff:
-                            ff.read()
-                            _path = library + "/steamapps/workshop/content/" + self.f1_2021_steamID
-                        ff.close()
-            f.close()
-        if _path is None or path == "":
-            _path = tkinter.filedialog.askdirectory(
-                title="select f12021 SteamLibrary folder, eg D:/SteamLibrary") + "/steamapps/workshop/content/"
-            if path.isdir(_path + self.f1_2020_steamID):
-                self._2020_workshop_dir = _path + self.f1_2020_steamID
-            else:
-                messagebox.showerror("Error", "Cant find f12020 SteamLibrary")
-            if path.isdir(_path + self.f1_2021_steamID):
-                _path = _path + self.f1_2021_steamID
-            else:
-                messagebox.showerror("Error", "Cant find f12021 SteamLibrary")
+                    """check every library for an app manifest with the game"""
+                    def check_appmanifest(steam_id):
+                        appmanifest = lib_path + r"\steamapps\appmanifest_" + steam_id + ".ACF"
+                        if path.isfile(appmanifest):
+                            with open(appmanifest) as ff:
+                                ff.read()
+                                return lib_path + "/steamapps/workshop/content/" + steam_id
 
-            self.dump('2020_workshop_dir', self._2020_workshop_dir)
+                    _path = check_appmanifest(self.f1_2021_steamID)
+                    self._2020_workshop_dir = check_appmanifest(self.f1_2020_steamID)
+
+        def ask_user_steam_library(p, string, steam_id):
+            if p is None or p == "":
+                p = tkinter.filedialog.askdirectory(
+                    title=f"select {string} SteamLibrary folder, eg D:/SteamLibrary") + "/steamapps/workshop/content/"
+                if path.isdir(p + steam_id):
+                    return p + steam_id
+                else:
+                    messagebox.showerror("Error", f"Cant find {string} SteamLibrary")
+
+        _path = ask_user_steam_library(_path, "F1 2021", self.f1_2021_steamID)
+        self._2020_workshop_dir = ask_user_steam_library(self._2020_workshop_dir, "F1 2020", self.f1_2020_steamID)
+
         self._workshop_dir = _path
         self.dump('workshop_dir', _path)
+        self.dump('2020_workshop_dir', self._2020_workshop_dir)
 
     @property
     def workshop_file(self):
